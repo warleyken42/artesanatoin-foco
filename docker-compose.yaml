@@ -1,0 +1,15 @@
+version: '3.1'
+services:
+  database:
+    image: postgres:9-alpine
+    container_name: db_server
+    environment:
+      POSTGRES_USER: user_db
+      POSTGRES_PASSWORD: clientedb
+      POSTGRES_DB: revista
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+volumes:
+  db_data:

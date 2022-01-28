@@ -1,0 +1,19 @@
+server:
+  port: 8080
+  error:
+    include-stacktrace: on_param
+
+spring:
+  application:
+    name: revista
+  datasource:
+    url: jdbc:postgresql://localhost:5432/revista
+    username: user_db
+    password: clientedb
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: update
