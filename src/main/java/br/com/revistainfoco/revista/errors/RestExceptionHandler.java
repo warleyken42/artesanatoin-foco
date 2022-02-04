@@ -4,12 +4,12 @@ import br.com.revistainfoco.revista.errors.exceptions.EstadoJaCadastradoExceptio
 import br.com.revistainfoco.revista.errors.exceptions.EstadoNaoEncontradoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
-public class RestExceptionHandler extends ResponseEntityExceptionHandler {
+public class RestExceptionHandler {
 
     @ExceptionHandler(EstadoJaCadastradoException.class)
     public ResponseEntity<?> handleEstadoCadastradoException(EstadoJaCadastradoException estadoJaCadastradoException) {
@@ -21,5 +21,11 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<?> handleEstadoNaoEncontradoException(EstadoNaoEncontradoException estadoNaoEncontradoException) {
         ErrorDetail errorDetail = ErrorDetail.builder().mensagem(estadoNaoEncontradoException.getMessage()).build();
         return new ResponseEntity<>(errorDetail, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException methodArgumentNotValidException) {
+        ErrorDetail errorDetail = ErrorDetail.builder().mensagem(methodArgumentNotValidException.getBindingResult().getFieldError().getDefaultMessage()).build();
+        return new ResponseEntity<>(errorDetail, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 }

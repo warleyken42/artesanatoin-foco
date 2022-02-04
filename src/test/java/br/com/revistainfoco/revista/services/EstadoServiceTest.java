@@ -1,5 +1,7 @@
 package br.com.revistainfoco.revista.services;
 
+import br.com.revistainfoco.revista.domain.dto.request.EstadoRequestDTO;
+import br.com.revistainfoco.revista.domain.dto.response.EstadoResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Estado;
 import br.com.revistainfoco.revista.errors.exceptions.EstadoJaCadastradoException;
 import br.com.revistainfoco.revista.errors.exceptions.EstadoNaoEncontradoException;
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -26,18 +29,25 @@ public class EstadoServiceTest {
     @Mock
     private EstadoRepository repository;
 
+    @Mock
+    private ModelMapper modelMapper;
+
     @InjectMocks
     private EstadoService service;
 
     @Test
     public void DadoUmEstadoQuandoTentarSalvarNoBancoDeDadosEntaoDeveRetorarOEstadoSalvo() {
-        Estado estadoMock = new Estado(null, "Sao Paulo", "SP");
+        EstadoRequestDTO estadoRequestDTOMock = new EstadoRequestDTO("Sao Paulo", "SP");
+        EstadoResponseDTO estadoCadastradoResponseDTOMock = new EstadoResponseDTO(new BigInteger("1"), "Sao Paulo", "SP");
+        Estado estadoMock = new Estado(null, "São Paulo", "SP");
+        Estado estadoCadastradoMock = new Estado(new BigInteger("1"), "São Paulo", "SP");
 
-        Estado estadoCadastradoMock = new Estado(new BigInteger("1"), "Sao Paulo", "SP");
+        when(modelMapper.map(estadoRequestDTOMock, Estado.class)).thenReturn(estadoMock);
+        when(modelMapper.map(estadoCadastradoMock, EstadoResponseDTO.class)).thenReturn(estadoCadastradoResponseDTOMock);
 
         when(repository.save(estadoMock)).thenReturn(estadoCadastradoMock);
 
-        Estado estadoCriado = service.create(estadoMock);
+        EstadoResponseDTO estadoCriado = service.create(estadoRequestDTOMock);
 
         Assertions.assertThat(estadoCriado).isNotNull();
         Assertions.assertThat(estadoCriado.getId()).isNotNull();
@@ -61,18 +71,20 @@ public class EstadoServiceTest {
 
         when(repository.findAll()).thenReturn(estadosCadastradosMock);
 
-        List<Estado> estadosCadastrados = service.readAll();
+        List<EstadoResponseDTO> estadosCadastrados = service.readAll();
 
         Assertions.assertThat(estadosCadastrados).isNotNull();
     }
 
     @Test
     public void DadoUmIdQuandoTentarLerUmEstadoPeloIdDeveRetornarOEstado() {
-        Estado estado = new Estado(new BigInteger("1"), "Ceará", "CE");
+        Estado estadoMock = new Estado(new BigInteger("1"), "Ceará", "CE");
+        EstadoResponseDTO estadoResponseDTOMock = new EstadoResponseDTO(new BigInteger("1"), "Ceará", "CE");
 
-        when(repository.findById(new BigInteger("1"))).thenReturn(Optional.of(estado));
+        when(repository.findById(new BigInteger("1"))).thenReturn(Optional.of(estadoMock));
 
-        Estado estadoCadastrado = service.readById(new BigInteger("1"));
+        when(modelMapper.map(estadoMock, EstadoResponseDTO.class)).thenReturn(estadoResponseDTOMock);
+        EstadoResponseDTO estadoCadastrado = service.readById(new BigInteger("1"));
 
         Assertions.assertThat(estadoCadastrado).isNotNull();
         Assertions.assertThat(estadoCadastrado.getUf()).isEqualTo("CE");
@@ -82,16 +94,19 @@ public class EstadoServiceTest {
 
     @Test
     public void DadoUmEstadoParaAtualizarQuandoTentarAtualizarOsDadosEntaoDeveRetornarOEstadoAtualizado() {
-        Estado estadoMock = new Estado(new BigInteger("1"), "cera", "SP");
+        Estado estadoComNomeErradoMock = new Estado(new BigInteger("1"), "cera", "SP");
+        Estado estadoAtualizadoComNomeCorretoMock = new Estado(new BigInteger("1"), "Ceará", "CE");
+        EstadoRequestDTO estadoComNomeErradoRequestDTOMock = new EstadoRequestDTO( "cera", "SP");
+        EstadoResponseDTO estadoComNomeCorretoResponseMock = new EstadoResponseDTO(new BigInteger("1"), "Ceará", "CE");
 
-        Estado estadoAtualizadoMock = new Estado(new BigInteger("1"), "Ceará", "CE");
 
-        when(repository.findById(new BigInteger("1"))).thenReturn(Optional.of(estadoMock));
-        when(repository.save(estadoMock)).thenReturn(estadoAtualizadoMock);
+        when(repository.findById(new BigInteger("1"))).thenReturn(Optional.of(estadoComNomeErradoMock));
+        when(repository.save(estadoComNomeErradoMock)).thenReturn(estadoAtualizadoComNomeCorretoMock);
+        when(modelMapper.map(estadoAtualizadoComNomeCorretoMock, EstadoResponseDTO.class)).thenReturn(estadoComNomeCorretoResponseMock);
 
-        Estado estado = service.update(new BigInteger("1"), estadoMock);
+        EstadoResponseDTO estadoResponseDTO = service.update(new BigInteger("1"), estadoComNomeErradoRequestDTOMock);
 
-        Assertions.assertThat(estado).isNotNull();
+        Assertions.assertThat(estadoResponseDTO).isNotNull();
     }
 
     @Test
@@ -106,10 +121,11 @@ public class EstadoServiceTest {
     @Test
     public void DadoUmEstadoJaCadastradoQuandoTentarCadastrarNovamenteEntaoDeveLancarErro() {
         Estado estadoDuplicado = new Estado(new BigInteger("1"), "Ceará", "CE");
+        EstadoRequestDTO estadoRequestDTO = new EstadoRequestDTO( "Ceará", "CE");
 
         when(repository.save(any())).thenThrow(EstadoJaCadastradoException.class);
 
-        assertThrows(EstadoJaCadastradoException.class, () -> service.create(estadoDuplicado));
+        assertThrows(EstadoJaCadastradoException.class, () -> service.create(estadoRequestDTO));
     }
 
     @Test
@@ -121,11 +137,13 @@ public class EstadoServiceTest {
 
     @Test
     public void DadoUmIdDeUmEstadoQueNaoEstaCadastradoQuandoTentarAtualizarEntaoDeveLancarErro() {
+        EstadoRequestDTO estadoRequestDTO = new EstadoRequestDTO("cera", "SP");
+
         when(repository.findById(any())).thenThrow(EstadoNaoEncontradoException.class);
 
         Estado estadoParaAtualizar = new Estado(new BigInteger("1"), "cera", "SP");
 
-        assertThrows(EstadoNaoEncontradoException.class, () -> service.update(new BigInteger("1"), estadoParaAtualizar));
+        assertThrows(EstadoNaoEncontradoException.class, () -> service.update(new BigInteger("1"), estadoRequestDTO));
     }
 
     @Test
