@@ -1,5 +1,6 @@
 package br.com.revistainfoco.revista.domain.dto.request;
 
+import br.com.revistainfoco.revista.domain.entity.Cidade;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -8,8 +9,9 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -26,4 +28,7 @@ public class EstadoRequestDTO {
     @Size(min = 2, max = 2, message = "O campo uf deve ter exatamente dois caracteres")
     @Schema(description = "Unidade Federativa do estado que se deseja cadastrar", example = "SP", required = true)
     private String uf;
+
+    @Schema(description = "Cidades que pertencem ao estado")
+    private List<Cidade> cidades = new ArrayList<>();
 }

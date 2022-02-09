@@ -9,7 +9,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,12 +40,12 @@ public class EstadoService {
         return estadosCadastrados;
     }
 
-    public EstadoResponseDTO readById(BigInteger id) {
+    public EstadoResponseDTO readById(Long id) {
         Estado estado = getEstado(id);
         return modelMapper.map(estado, EstadoResponseDTO.class);
     }
 
-    public EstadoResponseDTO update(BigInteger id, EstadoRequestDTO estadoRequestDTO) {
+    public EstadoResponseDTO update(Long id, EstadoRequestDTO estadoRequestDTO) {
         Estado estadoParaAtualizar = getEstado(id);
         estadoParaAtualizar.setNome(estadoRequestDTO.getNome());
         estadoParaAtualizar.setUf(estadoRequestDTO.getUf());
@@ -54,12 +53,12 @@ public class EstadoService {
         return modelMapper.map(estadoAtualizado, EstadoResponseDTO.class);
     }
 
-    public void delete(BigInteger id) {
+    public void delete(Long id) {
         getEstado(id);
         repository.deleteById(id);
     }
 
-    private Estado getEstado(BigInteger id) {
+    private Estado getEstado(Long id) {
         return repository.findById(id).orElseThrow(() -> new EstadoNaoEncontradoException("Estado não encontrado"));
     }
 
