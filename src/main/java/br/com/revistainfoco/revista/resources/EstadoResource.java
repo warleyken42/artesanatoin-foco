@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.math.BigInteger;
 import java.util.List;
 
 @RestController
@@ -63,7 +62,7 @@ public class EstadoResource {
             @ApiResponse(responseCode = "404", description = "Estado não encontrado", content = @Content(schema = @Schema(implementation = ErrorDetail.class)))
     })
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<EstadoResponseDTO> readById(@PathVariable("id") BigInteger id) {
+    public ResponseEntity<EstadoResponseDTO> readById(@PathVariable("id") Long id) {
         EstadoResponseDTO estadoResponseDTO = service.readById(id);
         return new ResponseEntity<>(estadoResponseDTO, HttpStatus.OK);
     }
@@ -76,7 +75,7 @@ public class EstadoResource {
             @ApiResponse(responseCode = "422", description = "Erro de validação", content = @Content(schema = @Schema(implementation = ErrorDetail.class)))
     })
     @PutMapping(value = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<EstadoResponseDTO> update(@PathVariable("id") BigInteger id, @RequestBody @Valid EstadoRequestDTO estadoRequestDTO) {
+    public ResponseEntity<EstadoResponseDTO> update(@PathVariable("id") Long id, @RequestBody @Valid EstadoRequestDTO estadoRequestDTO) {
         EstadoResponseDTO estadoResponseDTO = service.update(id, estadoRequestDTO);
         return new ResponseEntity<>(estadoResponseDTO, HttpStatus.OK);
     }
@@ -88,7 +87,7 @@ public class EstadoResource {
             @ApiResponse(responseCode = "415", description = "Media não suportada", content = @Content(schema = @Schema(implementation = ErrorDetail.class)))
     })
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") BigInteger id) {
+    public ResponseEntity<?> delete(@PathVariable("id") Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }

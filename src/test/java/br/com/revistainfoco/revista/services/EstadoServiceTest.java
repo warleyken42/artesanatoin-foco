@@ -14,14 +14,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
-import java.math.BigInteger;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class EstadoServiceTest {
@@ -38,9 +39,9 @@ public class EstadoServiceTest {
     @Test
     public void DadoUmEstadoQuandoTentarSalvarNoBancoDeDadosEntaoDeveRetorarOEstadoSalvo() {
         EstadoRequestDTO estadoRequestDTOMock = new EstadoRequestDTO("Sao Paulo", "SP");
-        EstadoResponseDTO estadoCadastradoResponseDTOMock = new EstadoResponseDTO(new BigInteger("1"), "Sao Paulo", "SP");
-        Estado estadoMock = new Estado(null, "São Paulo", "SP");
-        Estado estadoCadastradoMock = new Estado(new BigInteger("1"), "São Paulo", "SP");
+        EstadoResponseDTO estadoCadastradoResponseDTOMock = new EstadoResponseDTO(1L, "Sao Paulo", "SP");
+        Estado estadoMock = new Estado(null, "São Paulo", "SP", Collections.emptyList());
+        Estado estadoCadastradoMock = new Estado(1L, "São Paulo", "SP", Collections.emptyList());
 
         when(modelMapper.map(estadoRequestDTOMock, Estado.class)).thenReturn(estadoMock);
         when(modelMapper.map(estadoCadastradoMock, EstadoResponseDTO.class)).thenReturn(estadoCadastradoResponseDTOMock);
@@ -54,7 +55,7 @@ public class EstadoServiceTest {
         Assertions.assertThat(estadoCriado.getUf()).isNotNull();
         Assertions.assertThat(estadoCriado.getNome()).isNotNull();
 
-        Assertions.assertThat(estadoCriado.getId()).isEqualTo(new BigInteger("1"));
+        Assertions.assertThat(estadoCriado.getId()).isEqualTo(1L);
         Assertions.assertThat(estadoCriado.getNome()).isEqualTo("Sao Paulo");
         Assertions.assertThat(estadoCriado.getUf()).isEqualTo("SP");
 
@@ -64,9 +65,9 @@ public class EstadoServiceTest {
     public void DadoUmaSolicitacaoParaLerTodosOsEstadosCadastradoEntaoDeveRetornarTodosOsEstadosCadastrados() {
 
         List<Estado> estadosCadastradosMock = asList(
-                new Estado(new BigInteger("1"), "Ceará", "CE"),
-                new Estado(new BigInteger("2"), "São Paulo", "SP"),
-                new Estado(new BigInteger("3"), "Rio de Janeiro", "RJ")
+                new Estado(1L, "Ceará", "CE", Collections.emptyList()),
+                new Estado(2L, "São Paulo", "SP", Collections.emptyList()),
+                new Estado(3L, "Rio de Janeiro", "RJ", Collections.emptyList())
         );
 
         when(repository.findAll()).thenReturn(estadosCadastradosMock);
@@ -78,49 +79,49 @@ public class EstadoServiceTest {
 
     @Test
     public void DadoUmIdQuandoTentarLerUmEstadoPeloIdDeveRetornarOEstado() {
-        Estado estadoMock = new Estado(new BigInteger("1"), "Ceará", "CE");
-        EstadoResponseDTO estadoResponseDTOMock = new EstadoResponseDTO(new BigInteger("1"), "Ceará", "CE");
+        Estado estadoMock = new Estado(1L, "Ceará", "CE", Collections.emptyList());
+        EstadoResponseDTO estadoResponseDTOMock = new EstadoResponseDTO(1L, "Ceará", "CE");
 
-        when(repository.findById(new BigInteger("1"))).thenReturn(Optional.of(estadoMock));
+        when(repository.findById(1L)).thenReturn(Optional.of(estadoMock));
 
         when(modelMapper.map(estadoMock, EstadoResponseDTO.class)).thenReturn(estadoResponseDTOMock);
-        EstadoResponseDTO estadoCadastrado = service.readById(new BigInteger("1"));
+        EstadoResponseDTO estadoCadastrado = service.readById(1L);
 
         Assertions.assertThat(estadoCadastrado).isNotNull();
         Assertions.assertThat(estadoCadastrado.getUf()).isEqualTo("CE");
-        Assertions.assertThat(estadoCadastrado.getId()).isEqualTo(new BigInteger("1"));
+        Assertions.assertThat(estadoCadastrado.getId()).isEqualTo(1L);
         Assertions.assertThat(estadoCadastrado.getNome()).isEqualTo("Ceará");
     }
 
     @Test
     public void DadoUmEstadoParaAtualizarQuandoTentarAtualizarOsDadosEntaoDeveRetornarOEstadoAtualizado() {
-        Estado estadoComNomeErradoMock = new Estado(new BigInteger("1"), "cera", "SP");
-        Estado estadoAtualizadoComNomeCorretoMock = new Estado(new BigInteger("1"), "Ceará", "CE");
+        Estado estadoComNomeErradoMock = new Estado(1L, "cera", "SP", Collections.emptyList());
+        Estado estadoAtualizadoComNomeCorretoMock = new Estado(1L, "Ceará", "CE", Collections.emptyList());
         EstadoRequestDTO estadoComNomeErradoRequestDTOMock = new EstadoRequestDTO( "cera", "SP");
-        EstadoResponseDTO estadoComNomeCorretoResponseMock = new EstadoResponseDTO(new BigInteger("1"), "Ceará", "CE");
+        EstadoResponseDTO estadoComNomeCorretoResponseMock = new EstadoResponseDTO(1L, "Ceará", "CE");
 
 
-        when(repository.findById(new BigInteger("1"))).thenReturn(Optional.of(estadoComNomeErradoMock));
+        when(repository.findById(1L)).thenReturn(Optional.of(estadoComNomeErradoMock));
         when(repository.save(estadoComNomeErradoMock)).thenReturn(estadoAtualizadoComNomeCorretoMock);
         when(modelMapper.map(estadoAtualizadoComNomeCorretoMock, EstadoResponseDTO.class)).thenReturn(estadoComNomeCorretoResponseMock);
 
-        EstadoResponseDTO estadoResponseDTO = service.update(new BigInteger("1"), estadoComNomeErradoRequestDTOMock);
+        EstadoResponseDTO estadoResponseDTO = service.update(1L, estadoComNomeErradoRequestDTOMock);
 
         Assertions.assertThat(estadoResponseDTO).isNotNull();
     }
 
     @Test
     public void DadoUmIdQuandoTentarDeletarOEstadoDeveExcluirDoBancoDeDados() {
-        Estado estadoParaDeletar = new Estado(new BigInteger("1"), "Ceará", "CE");
+        Estado estadoParaDeletar = new Estado(1L, "Ceará", "CE", Collections.emptyList());
 
-        when(repository.findById(new BigInteger("1"))).thenReturn(Optional.of(estadoParaDeletar));
+        when(repository.findById(1L)).thenReturn(Optional.of(estadoParaDeletar));
 
-        assertDoesNotThrow(() -> service.delete(new BigInteger("1")));
+        assertDoesNotThrow(() -> service.delete(1L));
     }
 
     @Test
     public void DadoUmEstadoJaCadastradoQuandoTentarCadastrarNovamenteEntaoDeveLancarErro() {
-        Estado estadoDuplicado = new Estado(new BigInteger("1"), "Ceará", "CE");
+
         EstadoRequestDTO estadoRequestDTO = new EstadoRequestDTO( "Ceará", "CE");
 
         when(repository.save(any())).thenThrow(EstadoJaCadastradoException.class);
@@ -132,7 +133,7 @@ public class EstadoServiceTest {
     public void DadoUmIdDeUmEstadoQueNaoEstaCadastradoQuandoTentarLerEntaoDeveLancarErro() {
         when(repository.findById(any())).thenThrow(EstadoNaoEncontradoException.class);
 
-        assertThrows(EstadoNaoEncontradoException.class, () -> service.readById(new BigInteger("1")));
+        assertThrows(EstadoNaoEncontradoException.class, () -> service.readById(1L));
     }
 
     @Test
@@ -141,15 +142,15 @@ public class EstadoServiceTest {
 
         when(repository.findById(any())).thenThrow(EstadoNaoEncontradoException.class);
 
-        Estado estadoParaAtualizar = new Estado(new BigInteger("1"), "cera", "SP");
+        Estado estadoParaAtualizar = new Estado(1L, "cera", "SP", Collections.emptyList());
 
-        assertThrows(EstadoNaoEncontradoException.class, () -> service.update(new BigInteger("1"), estadoRequestDTO));
+        assertThrows(EstadoNaoEncontradoException.class, () -> service.update(1L, estadoRequestDTO));
     }
 
     @Test
     public void DadoUmIdDeUmEstadoQueNaoEstaCadastradoQuandoTentarExcluirEntaoDeveLancarErro() {
         when(repository.findById(any())).thenThrow(EstadoNaoEncontradoException.class);
 
-        assertThrows(EstadoNaoEncontradoException.class, () -> service.delete(new BigInteger("1")));
+        assertThrows(EstadoNaoEncontradoException.class, () -> service.delete(1L));
     }
 }
