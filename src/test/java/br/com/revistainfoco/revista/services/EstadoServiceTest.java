@@ -1,6 +1,7 @@
 package br.com.revistainfoco.revista.services;
 
 import br.com.revistainfoco.revista.domain.dto.request.EstadoRequestDTO;
+import br.com.revistainfoco.revista.domain.dto.request.EstadoUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.EstadoResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Estado;
 import br.com.revistainfoco.revista.errors.exceptions.EstadoJaCadastradoException;
@@ -39,9 +40,9 @@ public class EstadoServiceTest {
     @Test
     public void DadoUmEstadoQuandoTentarSalvarNoBancoDeDadosEntaoDeveRetorarOEstadoSalvo() {
         EstadoRequestDTO estadoRequestDTOMock = new EstadoRequestDTO("Sao Paulo", "SP");
-        EstadoResponseDTO estadoCadastradoResponseDTOMock = new EstadoResponseDTO(1L, "Sao Paulo", "SP");
-        Estado estadoMock = new Estado(null, "São Paulo", "SP", Collections.emptyList());
-        Estado estadoCadastradoMock = new Estado(1L, "São Paulo", "SP", Collections.emptyList());
+        EstadoResponseDTO estadoCadastradoResponseDTOMock = new EstadoResponseDTO(1L, "Sao Paulo", "SP", Collections.emptyList());
+        Estado estadoMock = new Estado(null, "São Paulo", "SP");
+        Estado estadoCadastradoMock = new Estado(1L, "São Paulo", "SP");
 
         when(modelMapper.map(estadoRequestDTOMock, Estado.class)).thenReturn(estadoMock);
         when(modelMapper.map(estadoCadastradoMock, EstadoResponseDTO.class)).thenReturn(estadoCadastradoResponseDTOMock);
@@ -65,9 +66,9 @@ public class EstadoServiceTest {
     public void DadoUmaSolicitacaoParaLerTodosOsEstadosCadastradoEntaoDeveRetornarTodosOsEstadosCadastrados() {
 
         List<Estado> estadosCadastradosMock = asList(
-                new Estado(1L, "Ceará", "CE", Collections.emptyList()),
-                new Estado(2L, "São Paulo", "SP", Collections.emptyList()),
-                new Estado(3L, "Rio de Janeiro", "RJ", Collections.emptyList())
+                new Estado(1L, "Ceará", "CE"),
+                new Estado(2L, "São Paulo", "SP"),
+                new Estado(3L, "Rio de Janeiro", "RJ")
         );
 
         when(repository.findAll()).thenReturn(estadosCadastradosMock);
@@ -79,8 +80,8 @@ public class EstadoServiceTest {
 
     @Test
     public void DadoUmIdQuandoTentarLerUmEstadoPeloIdDeveRetornarOEstado() {
-        Estado estadoMock = new Estado(1L, "Ceará", "CE", Collections.emptyList());
-        EstadoResponseDTO estadoResponseDTOMock = new EstadoResponseDTO(1L, "Ceará", "CE");
+        Estado estadoMock = new Estado(1L, "Ceará", "CE");
+        EstadoResponseDTO estadoResponseDTOMock = new EstadoResponseDTO(1L, "Ceará", "CE", Collections.emptyList());
 
         when(repository.findById(1L)).thenReturn(Optional.of(estadoMock));
 
@@ -95,10 +96,10 @@ public class EstadoServiceTest {
 
     @Test
     public void DadoUmEstadoParaAtualizarQuandoTentarAtualizarOsDadosEntaoDeveRetornarOEstadoAtualizado() {
-        Estado estadoComNomeErradoMock = new Estado(1L, "cera", "SP", Collections.emptyList());
-        Estado estadoAtualizadoComNomeCorretoMock = new Estado(1L, "Ceará", "CE", Collections.emptyList());
-        EstadoRequestDTO estadoComNomeErradoRequestDTOMock = new EstadoRequestDTO( "cera", "SP");
-        EstadoResponseDTO estadoComNomeCorretoResponseMock = new EstadoResponseDTO(1L, "Ceará", "CE");
+        Estado estadoComNomeErradoMock = new Estado(1L, "cera", "SP");
+        Estado estadoAtualizadoComNomeCorretoMock = new Estado(1L, "Ceará", "CE");
+        EstadoUpdateRequestDTO estadoComNomeErradoRequestDTOMock = new EstadoUpdateRequestDTO(1L, "cera", "SP");
+        EstadoResponseDTO estadoComNomeCorretoResponseMock = new EstadoResponseDTO(1L, "Ceará", "CE", Collections.emptyList());
 
 
         when(repository.findById(1L)).thenReturn(Optional.of(estadoComNomeErradoMock));
@@ -112,7 +113,7 @@ public class EstadoServiceTest {
 
     @Test
     public void DadoUmIdQuandoTentarDeletarOEstadoDeveExcluirDoBancoDeDados() {
-        Estado estadoParaDeletar = new Estado(1L, "Ceará", "CE", Collections.emptyList());
+        Estado estadoParaDeletar = new Estado(1L, "Ceará", "CE");
 
         when(repository.findById(1L)).thenReturn(Optional.of(estadoParaDeletar));
 
@@ -122,7 +123,7 @@ public class EstadoServiceTest {
     @Test
     public void DadoUmEstadoJaCadastradoQuandoTentarCadastrarNovamenteEntaoDeveLancarErro() {
 
-        EstadoRequestDTO estadoRequestDTO = new EstadoRequestDTO( "Ceará", "CE");
+        EstadoRequestDTO estadoRequestDTO = new EstadoRequestDTO("Ceará", "CE");
 
         when(repository.save(any())).thenThrow(EstadoJaCadastradoException.class);
 
@@ -138,11 +139,11 @@ public class EstadoServiceTest {
 
     @Test
     public void DadoUmIdDeUmEstadoQueNaoEstaCadastradoQuandoTentarAtualizarEntaoDeveLancarErro() {
-        EstadoRequestDTO estadoRequestDTO = new EstadoRequestDTO("cera", "SP");
+        EstadoUpdateRequestDTO estadoRequestDTO = new EstadoUpdateRequestDTO(1L, "cera", "SP");
 
         when(repository.findById(any())).thenThrow(EstadoNaoEncontradoException.class);
 
-        Estado estadoParaAtualizar = new Estado(1L, "cera", "SP", Collections.emptyList());
+        Estado estadoParaAtualizar = new Estado(1L, "cera", "SP");
 
         assertThrows(EstadoNaoEncontradoException.class, () -> service.update(1L, estadoRequestDTO));
     }
