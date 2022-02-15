@@ -13,29 +13,41 @@ import java.util.List;
 import java.util.Objects;
 
 @Tag(name = "estados", description = "Cadastro de Estados")
-public class EstadoRequestDTO implements Serializable {
+public class EstadoUpdateRequestDTO implements Serializable {
+
+    @Schema(description = "ID do estado que se deseja atualizar", example = "1", required = true)
+    private Long id;
 
     @NotNull(message = "O campo nome é obrigatório")
     @NotEmpty(message = "O campo nome é obrigatório")
-    @Schema(description = "Nome do estado que se deseja cadastrar", example = "São Paulo", required = true)
+    @Schema(description = "Nome do estado que se deseja atualizar", example = "São Paulo", required = true)
     private String nome;
 
     @NotNull(message = "O campo nome é obrigatório")
     @NotEmpty(message = "O campo nome é obrigatório")
     @Size(min = 2, max = 2, message = "O campo uf deve ter exatamente dois caracteres")
-    @Schema(description = "Unidade Federativa do estado que se deseja cadastrar", example = "SP", required = true)
+    @Schema(description = "Unidade Federativa do estado que se deseja atualizar", example = "SP", required = true)
     private String uf;
 
     @JsonManagedReference
     @Schema(description = "Cidades que pertencem ao estado")
-    private List<CidadeRequestDTO> cidades = new ArrayList<>();
+    private List<CidadeUpdateRequestDTO> cidades = new ArrayList<>();
 
-    public EstadoRequestDTO() {
+    public EstadoUpdateRequestDTO() {
     }
 
-    public EstadoRequestDTO(String nome, String uf) {
+    public EstadoUpdateRequestDTO(Long id, String nome, String uf) {
+        this.id = id;
         this.nome = nome;
         this.uf = uf;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getNome() {
@@ -54,11 +66,11 @@ public class EstadoRequestDTO implements Serializable {
         this.uf = uf;
     }
 
-    public List<CidadeRequestDTO> getCidades() {
+    public List<CidadeUpdateRequestDTO> getCidades() {
         return cidades;
     }
 
-    public void setCidades(List<CidadeRequestDTO> cidades) {
+    public void setCidades(List<CidadeUpdateRequestDTO> cidades) {
         this.cidades = cidades;
     }
 
@@ -66,12 +78,12 @@ public class EstadoRequestDTO implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        EstadoRequestDTO that = (EstadoRequestDTO) o;
-        return Objects.equals(nome, that.nome) && Objects.equals(uf, that.uf) && Objects.equals(cidades, that.cidades);
+        EstadoUpdateRequestDTO that = (EstadoUpdateRequestDTO) o;
+        return id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(nome, uf, cidades);
+        return Objects.hash(id);
     }
 }

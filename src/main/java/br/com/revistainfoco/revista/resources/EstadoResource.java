@@ -1,6 +1,7 @@
 package br.com.revistainfoco.revista.resources;
 
 import br.com.revistainfoco.revista.domain.dto.request.EstadoRequestDTO;
+import br.com.revistainfoco.revista.domain.dto.request.EstadoUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.EstadoResponseDTO;
 import br.com.revistainfoco.revista.errors.ErrorDetail;
 import br.com.revistainfoco.revista.services.EstadoService;
@@ -75,8 +76,8 @@ public class EstadoResource {
             @ApiResponse(responseCode = "422", description = "Erro de validação", content = @Content(schema = @Schema(implementation = ErrorDetail.class)))
     })
     @PutMapping(value = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<EstadoResponseDTO> update(@PathVariable("id") Long id, @RequestBody @Valid EstadoRequestDTO estadoRequestDTO) {
-        EstadoResponseDTO estadoResponseDTO = service.update(id, estadoRequestDTO);
+    public ResponseEntity<EstadoResponseDTO> update(@PathVariable("id") Long id, @RequestBody @Valid EstadoUpdateRequestDTO estadoUpdateRequestDTO) {
+        EstadoResponseDTO estadoResponseDTO = service.update(id, estadoUpdateRequestDTO);
         return new ResponseEntity<>(estadoResponseDTO, HttpStatus.OK);
     }
 

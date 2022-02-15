@@ -1,9 +1,11 @@
 package br.com.revistainfoco.revista.services;
 
 import br.com.revistainfoco.revista.domain.dto.request.CidadeRequestDTO;
+import br.com.revistainfoco.revista.domain.dto.request.CidadeUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.CidadeResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Cidade;
-import br.com.revistainfoco.revista.errors.exceptions.CidadeNaoEncontradoException;
+import br.com.revistainfoco.revista.domain.entity.Estado;
+import br.com.revistainfoco.revista.errors.exceptions.CidadeNaoEncontradaException;
 import br.com.revistainfoco.revista.repository.CidadeRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,11 +47,19 @@ public class CidadeService {
         return modelMapper.map(cidade, CidadeResponseDTO.class);
     }
 
-    public CidadeResponseDTO update(Long id, CidadeRequestDTO cidadeRequestDTO) {
-        Cidade cidadeParaAtualizar = getCidade(id);
-        cidadeParaAtualizar.setNome(cidadeRequestDTO.getNome());
-        Cidade cidadeAtualizado = repository.save(cidadeParaAtualizar);
-        return modelMapper.map(cidadeAtualizado, CidadeResponseDTO.class);
+    public CidadeResponseDTO update(Long id, CidadeUpdateRequestDTO cidadeUpdateRequestDTO) {
+        Cidade cidadeSalva = getCidade(id);
+
+        cidadeSalva.setId(id);
+        cidadeSalva.setNome(cidadeUpdateRequestDTO.getNome());
+
+        if (cidadeUpdateRequestDTO.getEstado() != null) {
+            Estado estado = modelMapper.map(cidadeUpdateRequestDTO.getEstado(), Estado.class);
+            cidadeSalva.setEstado(estado);
+        }
+
+        Cidade cidadeAtualizada = repository.save(cidadeSalva);
+        return modelMapper.map(cidadeAtualizada, CidadeResponseDTO.class);
     }
 
     public void delete(Long id) {
@@ -58,7 +68,7 @@ public class CidadeService {
     }
 
     private Cidade getCidade(Long id) {
-        return repository.findById(id).orElseThrow(() -> new CidadeNaoEncontradoException("Cidade não encontrada"));
+        return repository.findById(id).orElseThrow(() -> new CidadeNaoEncontradaException("Cidade não encontrada"));
     }
 
 }

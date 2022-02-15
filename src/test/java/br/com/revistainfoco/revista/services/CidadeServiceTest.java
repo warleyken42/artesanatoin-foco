@@ -1,11 +1,15 @@
 package br.com.revistainfoco.revista.services;
 
 import br.com.revistainfoco.revista.domain.dto.request.CidadeRequestDTO;
+import br.com.revistainfoco.revista.domain.dto.request.CidadeUpdateRequestDTO;
+import br.com.revistainfoco.revista.domain.dto.request.EstadoRequestDTO;
+import br.com.revistainfoco.revista.domain.dto.request.EstadoUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.CidadeResponseDTO;
+import br.com.revistainfoco.revista.domain.dto.response.EstadoResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Cidade;
 import br.com.revistainfoco.revista.domain.entity.Estado;
-import br.com.revistainfoco.revista.errors.exceptions.CidadeJaCadastradoException;
-import br.com.revistainfoco.revista.errors.exceptions.CidadeNaoEncontradoException;
+import br.com.revistainfoco.revista.errors.exceptions.CidadeJaCadastradaException;
+import br.com.revistainfoco.revista.errors.exceptions.CidadeNaoEncontradaException;
 import br.com.revistainfoco.revista.repository.CidadeRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -38,8 +42,8 @@ public class CidadeServiceTest {
 
     @Test
     public void DadoUmaCidadeQuandoTentarSalvarNoBancoDeDadosEntaoDeveRetorarOCidadeSalvo() {
-        CidadeRequestDTO cidadeRequestDTOMock = new CidadeRequestDTO("Jaguaribe");
-        CidadeResponseDTO cidadeCadastradoResponseDTOMock = new CidadeResponseDTO(1L, "Jaguaribe");
+        CidadeRequestDTO cidadeRequestDTOMock = new CidadeRequestDTO("Jaguaribe", new EstadoRequestDTO("Ceará", "CE"));
+        CidadeResponseDTO cidadeCadastradoResponseDTOMock = new CidadeResponseDTO(1L, "Jaguaribe", new EstadoResponseDTO());
         Cidade cidadeMock = new Cidade(null, "Jaguaribe", new Estado());
         Cidade cidadeCadastradoMock = new Cidade(1L, "Jaguaribe", new Estado());
 
@@ -77,7 +81,7 @@ public class CidadeServiceTest {
     @Test
     public void DadoUmIdQuandoTentarLerUmCidadePeloIdDeveRetornarOCidade() {
         Cidade cidadeMock = new Cidade(1L, "Jaguaribe", new Estado());
-        CidadeResponseDTO cidadeResponseDTOMock = new CidadeResponseDTO(1L, "Jaguaribe");
+        CidadeResponseDTO cidadeResponseDTOMock = new CidadeResponseDTO(1L, "Jaguaribe", new EstadoResponseDTO());
 
         when(repository.findById(1L)).thenReturn(Optional.of(cidadeMock));
 
@@ -93,8 +97,8 @@ public class CidadeServiceTest {
     public void DadoUmCidadeParaAtualizarQuandoTentarAtualizarOsDadosEntaoDeveRetornarOCidadeAtualizado() {
         Cidade cidadeComNomeErradoMock = new Cidade(1L, "Jaguaribe", new Estado());
         Cidade cidadeAtualizadoComNomeCorretoMock = new Cidade(1L, "Ceará", new Estado());
-        CidadeRequestDTO cidadeComNomeErradoRequestDTOMock = new CidadeRequestDTO("cera");
-        CidadeResponseDTO cidadeComNomeCorretoResponseMock = new CidadeResponseDTO(1L, "Jaguaribe");
+        CidadeUpdateRequestDTO cidadeComNomeErradoRequestDTOMock = new CidadeUpdateRequestDTO(1L, "cera", new EstadoUpdateRequestDTO(1L, "Ceará", "CE"));
+        CidadeResponseDTO cidadeComNomeCorretoResponseMock = new CidadeResponseDTO(1L, "Jaguaribe", new EstadoResponseDTO());
 
 
         when(repository.findById(1L)).thenReturn(Optional.of(cidadeComNomeErradoMock));
@@ -117,35 +121,35 @@ public class CidadeServiceTest {
 
     @Test
     public void DadoUmACidadeJaCadastradAQuandoTentarCadastrarNovamenteEntaoDeveLancarErro() {
-        CidadeRequestDTO cidadeRequestDTO = new CidadeRequestDTO("Jaguaribe");
+        CidadeRequestDTO cidadeRequestDTO = new CidadeRequestDTO("Jaguaribe", new EstadoRequestDTO("Ceará", "CE"));
 
-        when(repository.save(any())).thenThrow(CidadeJaCadastradoException.class);
+        when(repository.save(any())).thenThrow(CidadeJaCadastradaException.class);
 
-        assertThrows(CidadeJaCadastradoException.class, () -> service.create(cidadeRequestDTO));
+        assertThrows(CidadeJaCadastradaException.class, () -> service.create(cidadeRequestDTO));
     }
 
     @Test
     public void DadoUmIdDeUmCidadeQueNaoEstaCadastradoQuandoTentarLerEntaoDeveLancarErro() {
-        when(repository.findById(ArgumentMatchers.any())).thenThrow(CidadeNaoEncontradoException.class);
+        when(repository.findById(ArgumentMatchers.any())).thenThrow(CidadeNaoEncontradaException.class);
 
-        assertThrows(CidadeNaoEncontradoException.class, () -> service.readById(1L));
+        assertThrows(CidadeNaoEncontradaException.class, () -> service.readById(1L));
     }
 
     @Test
     public void DadoUmIdDeUmCidadeQueNaoEstaCadastradoQuandoTentarAtualizarEntaoDeveLancarErro() {
-        CidadeRequestDTO cidadeRequestDTO = new CidadeRequestDTO("Jaguaribe");
+        CidadeUpdateRequestDTO cidadeRequestDTO = new CidadeUpdateRequestDTO(1L, "Jaguaribe", new EstadoUpdateRequestDTO(1L, "Ceará", "CE"));
 
-        when(repository.findById(ArgumentMatchers.any())).thenThrow(CidadeNaoEncontradoException.class);
+        when(repository.findById(ArgumentMatchers.any())).thenThrow(CidadeNaoEncontradaException.class);
 
         Cidade cidadeParaAtualizar = new Cidade(1L, "Jaguaribe", new Estado());
 
-        assertThrows(CidadeNaoEncontradoException.class, () -> service.update(1L, cidadeRequestDTO));
+        assertThrows(CidadeNaoEncontradaException.class, () -> service.update(1L, cidadeRequestDTO));
     }
 
     @Test
     public void DadoUmIdDeUmCidadeQueNaoEstaCadastradoQuandoTentarExcluirEntaoDeveLancarErro() {
-        when(repository.findById(ArgumentMatchers.any())).thenThrow(CidadeNaoEncontradoException.class);
+        when(repository.findById(ArgumentMatchers.any())).thenThrow(CidadeNaoEncontradaException.class);
 
-        assertThrows(CidadeNaoEncontradoException.class, () -> service.delete(1L));
+        assertThrows(CidadeNaoEncontradaException.class, () -> service.delete(1L));
     }
 }

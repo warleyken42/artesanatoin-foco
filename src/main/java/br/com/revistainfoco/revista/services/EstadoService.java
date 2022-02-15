@@ -1,7 +1,10 @@
 package br.com.revistainfoco.revista.services;
 
+import br.com.revistainfoco.revista.domain.dto.request.CidadeUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.request.EstadoRequestDTO;
+import br.com.revistainfoco.revista.domain.dto.request.EstadoUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.EstadoResponseDTO;
+import br.com.revistainfoco.revista.domain.entity.Cidade;
 import br.com.revistainfoco.revista.domain.entity.Estado;
 import br.com.revistainfoco.revista.errors.exceptions.EstadoNaoEncontradoException;
 import br.com.revistainfoco.revista.repository.EstadoRepository;
@@ -26,9 +29,9 @@ public class EstadoService {
     }
 
     public EstadoResponseDTO create(EstadoRequestDTO estadoRequestDTO) {
-            Estado estado = modelMapper.map(estadoRequestDTO, Estado.class);
-            Estado estadoSalvo = repository.save(estado);
-            return modelMapper.map(estadoSalvo, EstadoResponseDTO.class);
+        Estado estado = modelMapper.map(estadoRequestDTO, Estado.class);
+        Estado estadoSalvo = repository.save(estado);
+        return modelMapper.map(estadoSalvo, EstadoResponseDTO.class);
     }
 
     public List<EstadoResponseDTO> readAll() {
@@ -45,11 +48,23 @@ public class EstadoService {
         return modelMapper.map(estado, EstadoResponseDTO.class);
     }
 
-    public EstadoResponseDTO update(Long id, EstadoRequestDTO estadoRequestDTO) {
-        Estado estadoParaAtualizar = getEstado(id);
-        estadoParaAtualizar.setNome(estadoRequestDTO.getNome());
-        estadoParaAtualizar.setUf(estadoRequestDTO.getUf());
-        Estado estadoAtualizado = repository.save(estadoParaAtualizar);
+    public EstadoResponseDTO update(Long id, EstadoUpdateRequestDTO estadoUpdateRequestDTO) {
+        Estado estadoSalvo = getEstado(id);
+
+        estadoSalvo.setId(id);
+        estadoSalvo.setNome(estadoUpdateRequestDTO.getNome());
+        estadoSalvo.setUf(estadoUpdateRequestDTO.getUf());
+
+        List<Cidade> cidades = new ArrayList<>();
+        estadoUpdateRequestDTO.getCidades().forEach(cidadeRequestDTO -> {
+            Cidade cidade = modelMapper.map(cidadeRequestDTO, Cidade.class);
+            cidades.add(cidade);
+        });
+
+        estadoSalvo.setCidades(cidades);
+
+        Estado estadoAtualizado = repository.save(estadoSalvo);
+
         return modelMapper.map(estadoAtualizado, EstadoResponseDTO.class);
     }
 
