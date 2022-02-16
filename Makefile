@@ -3,3 +3,6 @@ container_up:
 
 container_down:
 	docker-compose -f docker-compose.yaml down
+
+tests:
+	./gradlew clean build

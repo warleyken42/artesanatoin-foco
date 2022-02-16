@@ -1,6 +1,5 @@
 package br.com.revistainfoco.revista.services;
 
-import br.com.revistainfoco.revista.domain.dto.request.CidadeUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.request.EstadoRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.request.EstadoUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.EstadoResponseDTO;
