@@ -8,6 +8,8 @@ import br.com.revistainfoco.revista.errors.exceptions.EstadoJaCadastradoExceptio
 import br.com.revistainfoco.revista.errors.exceptions.EstadoNaoEncontradoException;
 import br.com.revistainfoco.revista.repository.EstadoRepository;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,18 +17,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class EstadoServiceTest {
+class EstadoServiceTest {
 
     @Mock
     private EstadoRepository repository;
@@ -37,33 +37,46 @@ public class EstadoServiceTest {
     @InjectMocks
     private EstadoService service;
 
+    private Estado estadoMock;
+    private EstadoRequestDTO estadoRequestDTOMock;
+    private EstadoResponseDTO estadoResponseDTOMock;
+    private EstadoUpdateRequestDTO estadoUpdateRequestDTO;
+
+    @BeforeEach
+    void beforeEach() {
+        estadoMock = new Estado(1L, "Ceará", "CE");
+        estadoRequestDTOMock = new EstadoRequestDTO("Ceará", "CE");
+        estadoResponseDTOMock = new EstadoResponseDTO(1L, "Ceará", "CE");
+        estadoUpdateRequestDTO = new EstadoUpdateRequestDTO(1L, "Ceará", "CE");
+    }
+
     @Test
-    public void DadoUmEstadoQuandoTentarSalvarNoBancoDeDadosEntaoDeveRetorarOEstadoSalvo() {
-        EstadoRequestDTO estadoRequestDTOMock = new EstadoRequestDTO("Sao Paulo", "SP");
-        EstadoResponseDTO estadoCadastradoResponseDTOMock = new EstadoResponseDTO(1L, "Sao Paulo", "SP", Collections.emptyList());
-        Estado estadoMock = new Estado(null, "São Paulo", "SP");
-        Estado estadoCadastradoMock = new Estado(1L, "São Paulo", "SP");
+    @DisplayName(value = "Dado um estado quando tentar salvar no banco de dados então deve retornar o estado salvo")
+    void DadoUmEstadoQuandoTentarSalvarNoBancoDeDadosEntaoDeveRetorarOEstadoSalvo() {
 
         when(modelMapper.map(estadoRequestDTOMock, Estado.class)).thenReturn(estadoMock);
-        when(modelMapper.map(estadoCadastradoMock, EstadoResponseDTO.class)).thenReturn(estadoCadastradoResponseDTOMock);
-
-        when(repository.save(estadoMock)).thenReturn(estadoCadastradoMock);
+        when(modelMapper.map(estadoMock, EstadoResponseDTO.class)).thenReturn(estadoResponseDTOMock);
+        when(repository.save(estadoMock)).thenReturn(estadoMock);
 
         EstadoResponseDTO estadoCriado = service.create(estadoRequestDTOMock);
+
+        verify(repository, times(1)).save(estadoMock);
+        verify(modelMapper, times(1)).map(estadoMock, EstadoResponseDTO.class);
+        verify(modelMapper, times(1)).map(estadoRequestDTOMock, Estado.class);
 
         Assertions.assertThat(estadoCriado).isNotNull();
         Assertions.assertThat(estadoCriado.getId()).isNotNull();
         Assertions.assertThat(estadoCriado.getUf()).isNotNull();
         Assertions.assertThat(estadoCriado.getNome()).isNotNull();
-
         Assertions.assertThat(estadoCriado.getId()).isEqualTo(1L);
-        Assertions.assertThat(estadoCriado.getNome()).isEqualTo("Sao Paulo");
-        Assertions.assertThat(estadoCriado.getUf()).isEqualTo("SP");
+        Assertions.assertThat(estadoCriado.getNome()).isEqualTo("Ceará");
+        Assertions.assertThat(estadoCriado.getUf()).isEqualTo("CE");
 
     }
 
     @Test
-    public void DadoUmaSolicitacaoParaLerTodosOsEstadosCadastradoEntaoDeveRetornarTodosOsEstadosCadastrados() {
+    @DisplayName(value = "Dado uma solicitação para ler todos os estados cadastrados então deve retornar todos os estados cadastrados")
+    void DadoUmaSolicitacaoParaLerTodosOsEstadosCadastradoEntaoDeveRetornarTodosOsEstadosCadastrados() {
 
         List<Estado> estadosCadastradosMock = asList(
                 new Estado(1L, "Ceará", "CE"),
@@ -71,22 +84,34 @@ public class EstadoServiceTest {
                 new Estado(3L, "Rio de Janeiro", "RJ")
         );
 
+        EstadoResponseDTO estadoResponseDTO = new EstadoResponseDTO(2L, "São Paulo", "SP");
+
+
+        when(modelMapper.map(estadoMock, EstadoResponseDTO.class)).thenReturn(estadoResponseDTO);
         when(repository.findAll()).thenReturn(estadosCadastradosMock);
 
         List<EstadoResponseDTO> estadosCadastrados = service.readAll();
 
-        Assertions.assertThat(estadosCadastrados).isNotNull();
+        verify(repository, times(1)).findAll();
+        verify(modelMapper, times(1)).map(estadoMock, EstadoResponseDTO.class);
+
+        Assertions.assertThat(estadosCadastrados)
+                .isNotNull()
+                .hasSize(3)
+                .contains(estadoResponseDTO);
     }
 
     @Test
-    public void DadoUmIdQuandoTentarLerUmEstadoPeloIdDeveRetornarOEstado() {
-        Estado estadoMock = new Estado(1L, "Ceará", "CE");
-        EstadoResponseDTO estadoResponseDTOMock = new EstadoResponseDTO(1L, "Ceará", "CE", Collections.emptyList());
+    @DisplayName(value = "Dado um id quando tentar ler um estado pelo id então deve retornar o estado")
+    void DadoUmIdQuandoTentarLerUmEstadoPeloIdDeveRetornarOEstado() {
 
         when(repository.findById(1L)).thenReturn(Optional.of(estadoMock));
-
         when(modelMapper.map(estadoMock, EstadoResponseDTO.class)).thenReturn(estadoResponseDTOMock);
+
         EstadoResponseDTO estadoCadastrado = service.readById(1L);
+
+        verify(repository, times(1)).findById(1L);
+        verify(modelMapper, times(1)).map(estadoMock, EstadoResponseDTO.class);
 
         Assertions.assertThat(estadoCadastrado).isNotNull();
         Assertions.assertThat(estadoCadastrado.getUf()).isEqualTo("CE");
@@ -95,61 +120,69 @@ public class EstadoServiceTest {
     }
 
     @Test
-    public void DadoUmEstadoParaAtualizarQuandoTentarAtualizarOsDadosEntaoDeveRetornarOEstadoAtualizado() {
-        Estado estadoComNomeErradoMock = new Estado(1L, "cera", "SP");
-        Estado estadoAtualizadoComNomeCorretoMock = new Estado(1L, "Ceará", "CE");
-        EstadoUpdateRequestDTO estadoComNomeErradoRequestDTOMock = new EstadoUpdateRequestDTO(1L, "cera", "SP");
-        EstadoResponseDTO estadoComNomeCorretoResponseMock = new EstadoResponseDTO(1L, "Ceará", "CE", Collections.emptyList());
+    @DisplayName("Dado um estado para atualizar quando tentar atualizar os dados então deve retornar o estado com os dados atualizados")
+    void DadoUmEstadoParaAtualizarQuandoTentarAtualizarOsDadosEntaoDeveRetornarOEstadoComOsDadosAtualizados() {
+
+        Estado estadoParaAtualizarMock = new Estado(2L, "Seará", "SE");
+        EstadoUpdateRequestDTO estadoParaAtualizarDTOMock = new EstadoUpdateRequestDTO(2L, "Seará", "SE");
 
 
-        when(repository.findById(1L)).thenReturn(Optional.of(estadoComNomeErradoMock));
-        when(repository.save(estadoComNomeErradoMock)).thenReturn(estadoAtualizadoComNomeCorretoMock);
-        when(modelMapper.map(estadoAtualizadoComNomeCorretoMock, EstadoResponseDTO.class)).thenReturn(estadoComNomeCorretoResponseMock);
+        when(repository.findById(1L)).thenReturn(Optional.of(estadoParaAtualizarMock));
+        when(repository.save(estadoMock)).thenReturn(estadoMock);
+        when(modelMapper.map(estadoMock, EstadoResponseDTO.class)).thenReturn(estadoResponseDTOMock);
 
-        EstadoResponseDTO estadoResponseDTO = service.update(1L, estadoComNomeErradoRequestDTOMock);
+        EstadoResponseDTO estadoResponseDTO = service.update(1L, estadoParaAtualizarDTOMock);
+
+        verify(repository, times(1)).findById(1L);
+        verify(repository, times(1)).save(estadoMock);
+        verify(modelMapper, times(1)).map(estadoMock, EstadoResponseDTO.class);
 
         Assertions.assertThat(estadoResponseDTO).isNotNull();
+        Assertions.assertThat(estadoResponseDTO.getId()).isEqualTo(1L);
+        Assertions.assertThat(estadoResponseDTO.getNome()).isEqualTo("Ceará");
+        Assertions.assertThat(estadoResponseDTO.getUf()).isEqualTo("CE");
     }
 
     @Test
-    public void DadoUmIdQuandoTentarDeletarOEstadoDeveExcluirDoBancoDeDados() {
-        Estado estadoParaDeletar = new Estado(1L, "Ceará", "CE");
+    @DisplayName(value = "Dado um id quando tentar deletar um estado então deve excluir o estado do banco de dados")
+    void DadoUmIdQuandoTentarDeletarUmEstadoEntaoDeveExcluirOEstadoDoBancoDeDados() {
 
-        when(repository.findById(1L)).thenReturn(Optional.of(estadoParaDeletar));
+        when(repository.findById(1L)).thenReturn(Optional.of(estadoMock));
 
         assertDoesNotThrow(() -> service.delete(1L));
     }
 
     @Test
-    public void DadoUmEstadoJaCadastradoQuandoTentarCadastrarNovamenteEntaoDeveLancarErro() {
-
-        EstadoRequestDTO estadoRequestDTO = new EstadoRequestDTO("Ceará", "CE");
+    @DisplayName(value = "Dado um estado já cadastrado quando tentar cadastrar novamente então deve lançar a exception EstadoJaCadastradoException")
+    void DadoUmEstadoJaCadastradoQuandoTentarCadastrarNovamenteEntaoDeveLancarAExceptionEstadoJaCadastradoException() {
 
         when(repository.save(any())).thenThrow(EstadoJaCadastradoException.class);
 
-        assertThrows(EstadoJaCadastradoException.class, () -> service.create(estadoRequestDTO));
+        assertThrows(EstadoJaCadastradoException.class, () -> service.create(estadoRequestDTOMock));
     }
 
     @Test
-    public void DadoUmIdDeUmEstadoQueNaoEstaCadastradoQuandoTentarLerEntaoDeveLancarErro() {
+    @DisplayName(value = "Dado um id de um estado que não está cadastrado quando tentar recuperar o estado pelo id então deve lançar a exception EstadoNaoEncontradoException")
+    void DadoUmIdDeUmEstadoQueNaoEstaCadastradoQuandoTentarRecuperarOEstadoPeloIdEntaoDeveLancarAExceptionEstadoNaoEncontradoException() {
+
         when(repository.findById(any())).thenThrow(EstadoNaoEncontradoException.class);
 
         assertThrows(EstadoNaoEncontradoException.class, () -> service.readById(1L));
     }
 
     @Test
-    public void DadoUmIdDeUmEstadoQueNaoEstaCadastradoQuandoTentarAtualizarEntaoDeveLancarErro() {
-        EstadoUpdateRequestDTO estadoRequestDTO = new EstadoUpdateRequestDTO(1L, "cera", "SP");
+    @DisplayName(value = "Dado um id de um estado que não está cadastrado quando tentar atualizar o estado então deve lançar a exception EstadoNaoEncontradoException")
+    void DadoUmIdDeUmEstadoQueNaoEstaCadastradoQuandoTentarAtualizarOEstadoEntaoDeveLancarAExceptionEstadoNaoEncontradoException() {
 
         when(repository.findById(any())).thenThrow(EstadoNaoEncontradoException.class);
 
-        Estado estadoParaAtualizar = new Estado(1L, "cera", "SP");
-
-        assertThrows(EstadoNaoEncontradoException.class, () -> service.update(1L, estadoRequestDTO));
+        assertThrows(EstadoNaoEncontradoException.class, () -> service.update(1L, estadoUpdateRequestDTO));
     }
 
     @Test
-    public void DadoUmIdDeUmEstadoQueNaoEstaCadastradoQuandoTentarExcluirEntaoDeveLancarErro() {
+    @DisplayName(value = "Dado um id de um estado que não está cadastrado quando tentar excluir o estado então deve lançar a exception EstadoNaoEncontradoException")
+    void DadoUmIdDeUmEstadoQueNaoEstaCadastradoQuandoTentarExcluirOEstadoEntaoDeveLancarAExceptionEstadoNaoEncontradoException() {
+
         when(repository.findById(any())).thenThrow(EstadoNaoEncontradoException.class);
 
         assertThrows(EstadoNaoEncontradoException.class, () -> service.delete(1L));
