@@ -4,10 +4,11 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 @Tag(name = "cidades", description = "Cadastro de Cidades")
-public class CidadeResponseDTO {
+public class CidadeResponseDTO implements Serializable {
 
     @Schema(description = "ID da cidade", example = "1")
     private Long id;

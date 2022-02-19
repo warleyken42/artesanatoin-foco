@@ -1,7 +1,10 @@
 package br.com.revistainfoco.revista.services;
 
 import br.com.revistainfoco.revista.domain.dto.request.EnderecoRequestDTO;
+import br.com.revistainfoco.revista.domain.dto.request.EnderecoUpdateRequestDTO;
+import br.com.revistainfoco.revista.domain.dto.response.CidadeResponseDTO;
 import br.com.revistainfoco.revista.domain.dto.response.EnderecoResponseDTO;
+import br.com.revistainfoco.revista.domain.entity.Cidade;
 import br.com.revistainfoco.revista.domain.entity.Endereco;
 import br.com.revistainfoco.revista.errors.exceptions.EnderecoNaoEncontradoException;
 import br.com.revistainfoco.revista.repository.EnderecoRepository;
@@ -47,5 +50,25 @@ public class EnderecoService {
 
     private Endereco getEndereco(Long id) {
         return repository.findById(id).orElseThrow(() -> new EnderecoNaoEncontradoException("Endereço não encontrado"));
+    }
+
+    public EnderecoResponseDTO update(Long id, EnderecoUpdateRequestDTO enderecoUpdateRequestDTO) {
+        Endereco enderecoSalvo  = getEndereco(id);
+
+        enderecoSalvo.setId(id);
+        enderecoSalvo.setLogradouro(enderecoUpdateRequestDTO.getLogradouro());
+        enderecoSalvo.setCep(enderecoUpdateRequestDTO.getCep());
+        enderecoSalvo.setNumero(enderecoUpdateRequestDTO.getNumero());
+        enderecoSalvo.setComplemento(enderecoUpdateRequestDTO.getComplemento());
+        enderecoSalvo.setBairro(enderecoUpdateRequestDTO.getBairro());
+
+        if (enderecoUpdateRequestDTO.getCidade() != null){
+            Cidade cidade = modelMapper.map(enderecoUpdateRequestDTO.getCidade(), Cidade.class);
+            enderecoSalvo.setCidade(cidade);
+        }
+
+        Endereco enderecoAtualizado = repository.save(enderecoSalvo);
+        return modelMapper.map(enderecoAtualizado, EnderecoResponseDTO.class);
+
     }
 }
