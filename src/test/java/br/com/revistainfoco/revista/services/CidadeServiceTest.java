@@ -153,7 +153,7 @@ class CidadeServiceTest {
 
     @Test
     @DisplayName(value = "Dado um id quando tentar deletar uma cidade então deve excluir a cidade do banco de dados")
-    void DadoUmIdQuandoTentarDeletarUmaCidadeEntaoDeveExcluirDoBancoDeDados() {
+    void DadoUmIdQuandoTentarDeletarUmaCidadeEntaoDeveExcluirACidadeDoBancoDeDados() {
 
         when(repository.findById(1L)).thenReturn(Optional.of(cidadeMock));
 
