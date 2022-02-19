@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static org.mockito.Mockito.when;
@@ -102,6 +103,21 @@ class EnderecoServiceTest {
 
         Assertions.assertThat(enderecosCadastrados).isNotNull().isNotEmpty().contains(enderecoCadastrado).hasSize(2);
 
+        Assertions.assertThat(enderecoCadastrado.getLogradouro()).isEqualTo("Cidade Lion");
+    }
+
+    @Test
+    @DisplayName(value = "Dado um id quando tentar ler um endereço pelo id então deve retornar o endereço")
+    void DadoUmIdQuandoTentarLerUmEnderecoPeloIdDeveRetornarOEndereco() {
+
+        when(repository.findById(1L)).thenReturn(Optional.of(enderecoMock));
+
+        when(modelMapper.map(enderecoMock, EnderecoResponseDTO.class)).thenReturn(enderecoResponseDTO);
+
+        EnderecoResponseDTO enderecoCadastrado = service.readById(1L);
+
+        Assertions.assertThat(enderecoCadastrado).isNotNull();
+        Assertions.assertThat(enderecoCadastrado.getId()).isEqualTo(1L);
         Assertions.assertThat(enderecoCadastrado.getLogradouro()).isEqualTo("Cidade Lion");
     }
 }
