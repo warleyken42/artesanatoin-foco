@@ -2,6 +2,7 @@ package br.com.revistainfoco.revista.services;
 
 import br.com.revistainfoco.revista.domain.dto.request.CidadeRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.request.EnderecoRequestDTO;
+import br.com.revistainfoco.revista.domain.dto.request.EnderecoUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.request.EstadoRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.CidadeResponseDTO;
 import br.com.revistainfoco.revista.domain.dto.response.EnderecoResponseDTO;
@@ -119,5 +120,26 @@ class EnderecoServiceTest {
         Assertions.assertThat(enderecoCadastrado).isNotNull();
         Assertions.assertThat(enderecoCadastrado.getId()).isEqualTo(1L);
         Assertions.assertThat(enderecoCadastrado.getLogradouro()).isEqualTo("Cidade Lion");
+    }
+
+    @Test
+    @DisplayName("Dado um endereço para atualizar quando tentar atualizar os dados então deve retornar o endereço com os dados atualizados")
+    void DadoUmEnderecoParaAtualizarQuandoTentarAtualizarOsDadosEntaoDeveRetornarOEnderecoComOsDadosAtualizados() {
+
+        Endereco enderecoComNomeErradoMock = new Endereco(1L, "Cidade Limao", cidadeMock, "17261414", "24", "", "Jagaraí");
+
+        when(repository.findById(1L)).thenReturn(Optional.of(enderecoComNomeErradoMock));
+        EnderecoUpdateRequestDTO enderecoUpdateRequestDTOMock = new EnderecoUpdateRequestDTO(
+                1L, "Cidade Lion", cidadeRequestDTOMock, "17261414", "24", "", "Jagaraí");
+
+        when(modelMapper.map(enderecoUpdateRequestDTOMock.getCidade(), Cidade.class)).thenReturn(cidadeMock);
+        when(repository.save(enderecoComNomeErradoMock)).thenReturn(enderecoMock);
+        when(modelMapper.map(enderecoMock, EnderecoResponseDTO.class)).thenReturn(enderecoResponseDTO);
+
+        EnderecoResponseDTO enderecoResponseDTO = service.update(1L, enderecoUpdateRequestDTOMock);
+
+        Assertions.assertThat(enderecoResponseDTO).isNotNull();
+        Assertions.assertThat(enderecoResponseDTO.getLogradouro()).isEqualTo("Cidade Lion");
+        Assertions.assertThat(enderecoResponseDTO.getId()).isEqualTo(1L);
     }
 }
