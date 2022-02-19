@@ -71,4 +71,9 @@ public class EnderecoService {
         return modelMapper.map(enderecoAtualizado, EnderecoResponseDTO.class);
 
     }
+
+    public void delete(Long id){
+        getEndereco(id);
+        repository.deleteById(id);
+    }
 }

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,23 +39,20 @@ class EnderecoServiceTest {
 
     @InjectMocks
     private EnderecoService service;
-    private Estado estadoMock;
+
     private Cidade cidadeMock;
-    private EstadoRequestDTO estadoRequestDTOMock;
     private CidadeRequestDTO cidadeRequestDTOMock;
-    private EstadoResponseDTO estadoResponseDTOMock;
-    private CidadeResponseDTO cidadeResponseDTO;
     private Endereco enderecoMock;
     private EnderecoResponseDTO enderecoResponseDTO;
 
     @BeforeEach
     void beaforeEach() {
-        estadoMock = new Estado(1L, "São Paulo", "SP");
+        Estado estadoMock = new Estado(1L, "São Paulo", "SP");
         cidadeMock = new Cidade(1L, "Guarulhos", estadoMock);
-        estadoRequestDTOMock = new EstadoRequestDTO("São Paulo", "SP");
+        EstadoRequestDTO estadoRequestDTOMock = new EstadoRequestDTO("São Paulo", "SP");
         cidadeRequestDTOMock = new CidadeRequestDTO("Guarulhos", estadoRequestDTOMock);
-        estadoResponseDTOMock = new EstadoResponseDTO(1L, "São Paulo", "SP");
-        cidadeResponseDTO = new CidadeResponseDTO(1L, "Guarulhos", estadoResponseDTOMock);
+        EstadoResponseDTO estadoResponseDTOMock = new EstadoResponseDTO(1L, "São Paulo", "SP");
+        CidadeResponseDTO cidadeResponseDTO = new CidadeResponseDTO(1L, "Guarulhos", estadoResponseDTOMock);
         enderecoMock = new Endereco(1L, "Cidade Lion", cidadeMock, "17080401", "184", "APT: 32", "Jardim Anny");
         enderecoResponseDTO = new EnderecoResponseDTO(1L, "Cidade Lion", cidadeResponseDTO, "17080401", "184", "APT: 32", "Jardim Anny");
     }
@@ -141,5 +139,14 @@ class EnderecoServiceTest {
         Assertions.assertThat(enderecoResponseDTO).isNotNull();
         Assertions.assertThat(enderecoResponseDTO.getLogradouro()).isEqualTo("Cidade Lion");
         Assertions.assertThat(enderecoResponseDTO.getId()).isEqualTo(1L);
+    }
+
+    @Test
+    @DisplayName(value = "Dado um id quando tentar deletar um endereço então deve excluir o endereço do banco de dados")
+    void DadoUmIdQuandoTentarDeletarUmEnderecoEntaoDeveExcluirOEnderecoDoBancoDeDados() {
+
+        when(repository.findById(1L)).thenReturn(Optional.of(enderecoMock));
+
+        assertDoesNotThrow(() -> service.delete(1L));
     }
 }
