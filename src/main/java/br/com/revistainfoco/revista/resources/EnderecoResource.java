@@ -35,6 +35,12 @@ public class EnderecoResource {
         this.service = service;
     }
 
+    @Operation(summary = "Busca um endereço pelo cep", description = "Busca um endereço pelo cep", tags = {"enderecos"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Endereço encontrado"),
+            @ApiResponse(responseCode = "404", description = "Endereço não encontrado", content = @Content(schema = @Schema(implementation = ErrorDetail.class))),
+            @ApiResponse(responseCode = "415", description = "Media não suportada", content = @Content(schema = @Schema(implementation = ErrorDetail.class))),
+    })
     @GetMapping(value = "/{cep}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EnderecoResponseDTO> findByCep(@PathVariable("cep") String cep) {
         EnderecoResponseDTO enderecoResponseDTO = service.findByCep(cep);
