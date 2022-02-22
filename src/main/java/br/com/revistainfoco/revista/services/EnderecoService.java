@@ -2,11 +2,11 @@ package br.com.revistainfoco.revista.services;
 
 import br.com.revistainfoco.revista.domain.dto.request.EnderecoRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.request.EnderecoUpdateRequestDTO;
-import br.com.revistainfoco.revista.domain.dto.response.CidadeResponseDTO;
 import br.com.revistainfoco.revista.domain.dto.response.EnderecoResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Cidade;
 import br.com.revistainfoco.revista.domain.entity.Endereco;
 import br.com.revistainfoco.revista.errors.exceptions.EnderecoNaoEncontradoException;
+import br.com.revistainfoco.revista.errors.exceptions.EstadoNaoEncontradoException;
 import br.com.revistainfoco.revista.repository.EnderecoRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,5 +75,13 @@ public class EnderecoService {
     public void delete(Long id){
         getEndereco(id);
         repository.deleteById(id);
+    }
+
+    public EnderecoResponseDTO findByCep(String cep) {
+        Endereco endereco = repository.findByCep(cep);
+        if (endereco != null) {
+            return  modelMapper.map(endereco, EnderecoResponseDTO.class);
+        }
+        throw new EstadoNaoEncontradoException("Endereço não encontrado para o cep " + cep);
     }
 }

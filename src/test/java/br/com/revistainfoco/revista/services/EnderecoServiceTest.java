@@ -10,12 +10,17 @@ import br.com.revistainfoco.revista.domain.dto.response.EstadoResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Cidade;
 import br.com.revistainfoco.revista.domain.entity.Endereco;
 import br.com.revistainfoco.revista.domain.entity.Estado;
+import br.com.revistainfoco.revista.errors.exceptions.CepEnderecoNaoEncontradoException;
+import br.com.revistainfoco.revista.errors.exceptions.CidadeJaCadastradaException;
+import br.com.revistainfoco.revista.errors.exceptions.EnderecoJaCadastradoException;
+import br.com.revistainfoco.revista.errors.exceptions.EnderecoNaoEncontradoException;
 import br.com.revistainfoco.revista.repository.EnderecoRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,6 +31,8 @@ import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,6 +51,7 @@ class EnderecoServiceTest {
     private CidadeRequestDTO cidadeRequestDTOMock;
     private Endereco enderecoMock;
     private EnderecoResponseDTO enderecoResponseDTO;
+    private CidadeResponseDTO cidadeResponseDTO;
 
     @BeforeEach
     void beaforeEach() {
@@ -52,7 +60,7 @@ class EnderecoServiceTest {
         EstadoRequestDTO estadoRequestDTOMock = new EstadoRequestDTO("São Paulo", "SP");
         cidadeRequestDTOMock = new CidadeRequestDTO("Guarulhos", estadoRequestDTOMock);
         EstadoResponseDTO estadoResponseDTOMock = new EstadoResponseDTO(1L, "São Paulo", "SP");
-        CidadeResponseDTO cidadeResponseDTO = new CidadeResponseDTO(1L, "Guarulhos", estadoResponseDTOMock);
+        cidadeResponseDTO = new CidadeResponseDTO(1L, "Guarulhos", estadoResponseDTOMock);
         enderecoMock = new Endereco(1L, "Cidade Lion", cidadeMock, "17080401", "184", "APT: 32", "Jardim Anny");
         enderecoResponseDTO = new EnderecoResponseDTO(1L, "Cidade Lion", cidadeResponseDTO, "17080401", "184", "APT: 32", "Jardim Anny");
     }
@@ -121,7 +129,7 @@ class EnderecoServiceTest {
     }
 
     @Test
-    @DisplayName("Dado um endereço para atualizar quando tentar atualizar os dados então deve retornar o endereço com os dados atualizados")
+    @DisplayName(value = "Dado um endereço para atualizar quando tentar atualizar os dados então deve retornar o endereço com os dados atualizados")
     void DadoUmEnderecoParaAtualizarQuandoTentarAtualizarOsDadosEntaoDeveRetornarOEnderecoComOsDadosAtualizados() {
 
         Endereco enderecoComNomeErradoMock = new Endereco(1L, "Cidade Limao", cidadeMock, "17261414", "24", "", "Jagaraí");
@@ -149,4 +157,55 @@ class EnderecoServiceTest {
 
         assertDoesNotThrow(() -> service.delete(1L));
     }
+
+    @Test
+    @DisplayName(value = "Dado um endereço já cadastrado quando tentar cadastrar novamente então deve lançar a exception EnderecoJaCadastradoException")
+    void DadoUmEnderecoJaCadastradoQuandoTentarCadastrarNovamenteEntaoDeveLancarAExceptionEnderecoJaCadastradoException() {
+
+        when(repository.save(any())).thenThrow(EnderecoJaCadastradoException.class);
+
+        EnderecoRequestDTO enderecoRequestDTO = new EnderecoRequestDTO("Cidade Lion", cidadeRequestDTOMock, "17080401", "184", "APT: 32", "Jardim Anny");
+        assertThrows(EnderecoJaCadastradoException.class, () -> service.create(enderecoRequestDTO));
+    }
+
+    @Test
+    @DisplayName(value = "Dado um id de um endereço que não está cadastrado quando tentar recuperar o endereço pelo id então deve lançar a exception EnderecoNaoEncontradoException")
+    void DadoUmIdDeUmEnrecoQueNaoEstaCadastradoQuandoTentarRecuperarOEnderecoPeloIdEntaoDeveLancarAExceptionEnderecoNaoEncontradoException(){
+
+        when(repository.findById(ArgumentMatchers.any())).thenThrow(EnderecoNaoEncontradoException.class);
+
+        assertThrows(EnderecoNaoEncontradoException.class, () -> service.readById(1L));
+    }
+
+    @Test
+    @DisplayName(value = "Dado um id de um endereço que não está cadastrado quando tentar atualizar o endereço pelo id então deve lançar a exception EnderecoNaoEncontradoException")
+    void DadoUmIdDeUmEnrecoQueNaoEstaCadastradoQuandoTentarAtualizarOEnderecoPeloIdEntaoDeveLancarAExceptionEnderecoNaoEncontradoException(){
+
+        when(repository.findById(ArgumentMatchers.any())).thenThrow(EnderecoNaoEncontradoException.class);
+
+        assertThrows(EnderecoNaoEncontradoException.class, () -> service.update(1L, new EnderecoUpdateRequestDTO()));
+    }
+
+    @Test
+    @DisplayName(value = "Dado um id de um endereço que não está cadastrado quando tentar excluir o endereço pelo id então deve lançar a exception EnderecoNaoEncontradoException")
+    void DadoUmIdDeUmEnderecoQueNaoEstaCadastradoQuandoTentarExcluirOEnderecoPeloIdEntaoDeveLancarAExceptionEnderecoNaoEncontradoException(){
+
+        when(repository.findById(ArgumentMatchers.any())).thenThrow(EnderecoNaoEncontradoException.class);
+
+        assertThrows(EnderecoNaoEncontradoException.class, () -> service.delete(1L));
+    }
+
+    @Test
+    @DisplayName(value = "Dado um cep de um endereço que não esta cadastrado quando tentar recuperar o endereco pelo cep então deve lançar a exception CepEnderecoNaoEncontradoException")
+    void DadoUmCepDeUmEnderecoQueNaoEstaCadastradoQuandoTentarRecuperarOEnderecoPeloCepEntaoDeveLancarAExceptionCepEnderecoNaoEncontradoException(){
+
+        when(repository.findByCep(any())).thenReturn(enderecoMock);
+
+        when(modelMapper.map(enderecoMock, EnderecoResponseDTO.class)).thenReturn(enderecoResponseDTO);
+
+        EnderecoResponseDTO enderecoResponseDTO = service.findByCep(any());
+
+        Assertions.assertThat(enderecoResponseDTO).isNotNull();
+    }
+
 }
