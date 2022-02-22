@@ -10,8 +10,6 @@ import br.com.revistainfoco.revista.domain.dto.response.EstadoResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Cidade;
 import br.com.revistainfoco.revista.domain.entity.Endereco;
 import br.com.revistainfoco.revista.domain.entity.Estado;
-import br.com.revistainfoco.revista.errors.exceptions.CepEnderecoNaoEncontradoException;
-import br.com.revistainfoco.revista.errors.exceptions.CidadeJaCadastradaException;
 import br.com.revistainfoco.revista.errors.exceptions.EnderecoJaCadastradoException;
 import br.com.revistainfoco.revista.errors.exceptions.EnderecoNaoEncontradoException;
 import br.com.revistainfoco.revista.repository.EnderecoRepository;
@@ -170,7 +168,7 @@ class EnderecoServiceTest {
 
     @Test
     @DisplayName(value = "Dado um id de um endereço que não está cadastrado quando tentar recuperar o endereço pelo id então deve lançar a exception EnderecoNaoEncontradoException")
-    void DadoUmIdDeUmEnrecoQueNaoEstaCadastradoQuandoTentarRecuperarOEnderecoPeloIdEntaoDeveLancarAExceptionEnderecoNaoEncontradoException(){
+    void DadoUmIdDeUmEnrecoQueNaoEstaCadastradoQuandoTentarRecuperarOEnderecoPeloIdEntaoDeveLancarAExceptionEnderecoNaoEncontradoException() {
 
         when(repository.findById(ArgumentMatchers.any())).thenThrow(EnderecoNaoEncontradoException.class);
 
@@ -179,7 +177,7 @@ class EnderecoServiceTest {
 
     @Test
     @DisplayName(value = "Dado um id de um endereço que não está cadastrado quando tentar atualizar o endereço pelo id então deve lançar a exception EnderecoNaoEncontradoException")
-    void DadoUmIdDeUmEnrecoQueNaoEstaCadastradoQuandoTentarAtualizarOEnderecoPeloIdEntaoDeveLancarAExceptionEnderecoNaoEncontradoException(){
+    void DadoUmIdDeUmEnrecoQueNaoEstaCadastradoQuandoTentarAtualizarOEnderecoPeloIdEntaoDeveLancarAExceptionEnderecoNaoEncontradoException() {
 
         when(repository.findById(ArgumentMatchers.any())).thenThrow(EnderecoNaoEncontradoException.class);
 
@@ -188,7 +186,7 @@ class EnderecoServiceTest {
 
     @Test
     @DisplayName(value = "Dado um id de um endereço que não está cadastrado quando tentar excluir o endereço pelo id então deve lançar a exception EnderecoNaoEncontradoException")
-    void DadoUmIdDeUmEnderecoQueNaoEstaCadastradoQuandoTentarExcluirOEnderecoPeloIdEntaoDeveLancarAExceptionEnderecoNaoEncontradoException(){
+    void DadoUmIdDeUmEnderecoQueNaoEstaCadastradoQuandoTentarExcluirOEnderecoPeloIdEntaoDeveLancarAExceptionEnderecoNaoEncontradoException() {
 
         when(repository.findById(ArgumentMatchers.any())).thenThrow(EnderecoNaoEncontradoException.class);
 
@@ -197,7 +195,7 @@ class EnderecoServiceTest {
 
     @Test
     @DisplayName(value = "Dado um cep de um endereço que não esta cadastrado quando tentar recuperar o endereco pelo cep então deve lançar a exception CepEnderecoNaoEncontradoException")
-    void DadoUmCepDeUmEnderecoQueNaoEstaCadastradoQuandoTentarRecuperarOEnderecoPeloCepEntaoDeveLancarAExceptionCepEnderecoNaoEncontradoException(){
+    void DadoUmCepDeUmEnderecoQueNaoEstaCadastradoQuandoTentarRecuperarOEnderecoPeloCepEntaoDeveLancarAExceptionCepEnderecoNaoEncontradoException() {
 
         when(repository.findByCep(any())).thenReturn(enderecoMock);
 
