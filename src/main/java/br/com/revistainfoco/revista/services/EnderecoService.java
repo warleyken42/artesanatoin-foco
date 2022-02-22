@@ -53,7 +53,7 @@ public class EnderecoService {
     }
 
     public EnderecoResponseDTO update(Long id, EnderecoUpdateRequestDTO enderecoUpdateRequestDTO) {
-        Endereco enderecoSalvo  = getEndereco(id);
+        Endereco enderecoSalvo = getEndereco(id);
 
         enderecoSalvo.setId(id);
         enderecoSalvo.setLogradouro(enderecoUpdateRequestDTO.getLogradouro());
@@ -62,7 +62,7 @@ public class EnderecoService {
         enderecoSalvo.setComplemento(enderecoUpdateRequestDTO.getComplemento());
         enderecoSalvo.setBairro(enderecoUpdateRequestDTO.getBairro());
 
-        if (enderecoUpdateRequestDTO.getCidade() != null){
+        if (enderecoUpdateRequestDTO.getCidade() != null) {
             Cidade cidade = modelMapper.map(enderecoUpdateRequestDTO.getCidade(), Cidade.class);
             enderecoSalvo.setCidade(cidade);
         }
@@ -72,7 +72,7 @@ public class EnderecoService {
 
     }
 
-    public void delete(Long id){
+    public void delete(Long id) {
         getEndereco(id);
         repository.deleteById(id);
     }
@@ -80,7 +80,7 @@ public class EnderecoService {
     public EnderecoResponseDTO findByCep(String cep) {
         Endereco endereco = repository.findByCep(cep);
         if (endereco != null) {
-            return  modelMapper.map(endereco, EnderecoResponseDTO.class);
+            return modelMapper.map(endereco, EnderecoResponseDTO.class);
         }
         throw new EstadoNaoEncontradoException("Endereço não encontrado para o cep " + cep);
     }

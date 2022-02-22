@@ -1,14 +1,9 @@
 package br.com.revistainfoco.revista.resources;
 
-import br.com.revistainfoco.revista.domain.dto.request.CidadeRequestDTO;
-import br.com.revistainfoco.revista.domain.dto.request.CidadeUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.request.EnderecoRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.request.EnderecoUpdateRequestDTO;
-import br.com.revistainfoco.revista.domain.dto.response.CidadeResponseDTO;
 import br.com.revistainfoco.revista.domain.dto.response.EnderecoResponseDTO;
-import br.com.revistainfoco.revista.domain.entity.Endereco;
 import br.com.revistainfoco.revista.errors.ErrorDetail;
-import br.com.revistainfoco.revista.services.CidadeService;
 import br.com.revistainfoco.revista.services.EnderecoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -69,7 +64,7 @@ public class EnderecoResource {
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> readAll() {
         List<EnderecoResponseDTO> enderecos = service.readAll();
-        if (enderecos.isEmpty()){
+        if (enderecos.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
         return new ResponseEntity<>(enderecos, HttpStatus.OK);
@@ -81,7 +76,7 @@ public class EnderecoResource {
             @ApiResponse(responseCode = "404", description = "Endereço não encontrado", content = @Content(schema = @Schema(implementation = ErrorDetail.class)))
     })
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<EnderecoResponseDTO> readById(@PathVariable("id") Long id){
+    public ResponseEntity<EnderecoResponseDTO> readById(@PathVariable("id") Long id) {
         EnderecoResponseDTO enderecoResponseDTO = service.readById(id);
         return new ResponseEntity<>(enderecoResponseDTO, HttpStatus.OK);
     }
@@ -95,7 +90,7 @@ public class EnderecoResource {
             @ApiResponse(responseCode = "422", description = "Erro de validação", content = @Content(schema = @Schema(implementation = ErrorDetail.class)))
     })
     @PutMapping(value = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<EnderecoResponseDTO> update(@PathVariable("id") Long id, @RequestBody @Valid EnderecoUpdateRequestDTO enderecoUpdateRequestDTO){
+    public ResponseEntity<EnderecoResponseDTO> update(@PathVariable("id") Long id, @RequestBody @Valid EnderecoUpdateRequestDTO enderecoUpdateRequestDTO) {
         EnderecoResponseDTO enderecoResponseDTO = service.update(id, enderecoUpdateRequestDTO);
         return new ResponseEntity<>(enderecoResponseDTO, HttpStatus.OK);
     }
