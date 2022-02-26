@@ -36,7 +36,7 @@ public class EnderecoResource {
             @ApiResponse(responseCode = "404", description = "Endereço não encontrado", content = @Content(schema = @Schema(implementation = ErrorDetail.class))),
             @ApiResponse(responseCode = "415", description = "Media não suportada", content = @Content(schema = @Schema(implementation = ErrorDetail.class))),
     })
-    @GetMapping(value = "/{cep}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/findByCep/{cep}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EnderecoResponseDTO> findByCep(@PathVariable("cep") String cep) {
         EnderecoResponseDTO enderecoResponseDTO = service.findByCep(cep);
         return new ResponseEntity<>(enderecoResponseDTO, HttpStatus.OK);
@@ -89,7 +89,7 @@ public class EnderecoResource {
             @ApiResponse(responseCode = "415", description = "Media não suportada", content = @Content(schema = @Schema(implementation = ErrorDetail.class))),
             @ApiResponse(responseCode = "422", description = "Erro de validação", content = @Content(schema = @Schema(implementation = ErrorDetail.class)))
     })
-    @PutMapping(value = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EnderecoResponseDTO> update(@PathVariable("id") Long id, @RequestBody @Valid EnderecoUpdateRequestDTO enderecoUpdateRequestDTO) {
         EnderecoResponseDTO enderecoResponseDTO = service.update(id, enderecoUpdateRequestDTO);
         return new ResponseEntity<>(enderecoResponseDTO, HttpStatus.OK);

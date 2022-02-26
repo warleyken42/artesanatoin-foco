@@ -56,9 +56,9 @@ class EnderecoServiceTest {
         Estado estadoMock = new Estado(1L, "São Paulo", "SP");
         cidadeMock = new Cidade(1L, "Guarulhos", estadoMock);
         EstadoRequestDTO estadoRequestDTOMock = new EstadoRequestDTO("São Paulo", "SP");
-        cidadeRequestDTOMock = new CidadeRequestDTO("Guarulhos", estadoRequestDTOMock);
+        cidadeRequestDTOMock = new CidadeRequestDTO("Guarulhos");
         EstadoResponseDTO estadoResponseDTOMock = new EstadoResponseDTO(1L, "São Paulo", "SP");
-        cidadeResponseDTO = new CidadeResponseDTO(1L, "Guarulhos", estadoResponseDTOMock);
+        cidadeResponseDTO = new CidadeResponseDTO(1L, "Guarulhos");
         enderecoMock = new Endereco(1L, "Cidade Lion", cidadeMock, "17080401", "184", "APT: 32", "Jardim Anny");
         enderecoResponseDTO = new EnderecoResponseDTO(1L, "Cidade Lion", cidadeResponseDTO, "17080401", "184", "APT: 32", "Jardim Anny");
     }
@@ -67,7 +67,7 @@ class EnderecoServiceTest {
     @DisplayName(value = "Dado um endereço para cadastrar quando tentar cadastrar deve cadastrar com sucesso e retornar o endereço cadastrado")
     void DadoUmEnderecoParaCadastrarQuandoTentarCadastrarDeveCadastrarComSucessoERetornarOEnderecoCadastrado() {
 
-        EnderecoRequestDTO enderecoRequestDTOMock = new EnderecoRequestDTO("Cidade Lion", cidadeRequestDTOMock, "17080401", "184", "APT: 32", "Jardim Anny");
+        EnderecoRequestDTO enderecoRequestDTOMock = new EnderecoRequestDTO("Cidade Lion", cidadeRequestDTOMock, "17080401", "184", "APT: 32", "Jardim Anny", "SP");
 
         when(modelMapper.map(enderecoRequestDTOMock, Endereco.class)).thenReturn(enderecoMock);
         when(repository.save(enderecoMock)).thenReturn(enderecoMock);
@@ -84,10 +84,6 @@ class EnderecoServiceTest {
         Assertions.assertThat(enderecoCadastrado.getBairro()).isEqualTo("Jardim Anny");
         Assertions.assertThat(enderecoCadastrado.getCidade().getNome()).isEqualTo("Guarulhos");
         Assertions.assertThat(enderecoCadastrado.getCidade().getId()).isEqualTo(1L);
-        Assertions.assertThat(enderecoCadastrado.getCidade().getEstado().getNome()).isEqualTo("São Paulo");
-        Assertions.assertThat(enderecoCadastrado.getCidade().getEstado().getId()).isEqualTo(1L);
-        Assertions.assertThat(enderecoCadastrado.getCidade().getEstado().getUf()).isEqualTo("SP");
-
     }
 
     @Test
@@ -134,7 +130,7 @@ class EnderecoServiceTest {
 
         when(repository.findById(1L)).thenReturn(Optional.of(enderecoComNomeErradoMock));
         EnderecoUpdateRequestDTO enderecoUpdateRequestDTOMock = new EnderecoUpdateRequestDTO(
-                1L, "Cidade Lion", cidadeRequestDTOMock, "17261414", "24", "", "Jagaraí");
+                1L, "Cidade Lion", cidadeRequestDTOMock, "17261414", "24", "", "Jagaraí", "SP");
 
         when(modelMapper.map(enderecoUpdateRequestDTOMock.getCidade(), Cidade.class)).thenReturn(cidadeMock);
         when(repository.save(enderecoComNomeErradoMock)).thenReturn(enderecoMock);
@@ -162,7 +158,7 @@ class EnderecoServiceTest {
 
         when(repository.save(any())).thenThrow(EnderecoJaCadastradoException.class);
 
-        EnderecoRequestDTO enderecoRequestDTO = new EnderecoRequestDTO("Cidade Lion", cidadeRequestDTOMock, "17080401", "184", "APT: 32", "Jardim Anny");
+        EnderecoRequestDTO enderecoRequestDTO = new EnderecoRequestDTO("Cidade Lion", cidadeRequestDTOMock, "17080401", "184", "APT: 32", "Jardim Anny", "SO");
         assertThrows(EnderecoJaCadastradoException.class, () -> service.create(enderecoRequestDTO));
     }
 

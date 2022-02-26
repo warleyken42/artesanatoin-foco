@@ -1,5 +1,7 @@
 package br.com.revistainfoco.revista.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -20,7 +22,8 @@ public class Estado implements Serializable {
     @Column(name = "uf", unique = true, nullable = false, length = 2, columnDefinition = "VARCHAR(2)")
     private String uf;
 
-    @OneToMany(mappedBy = "estado", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.ALL})
+    @JsonIgnore
+    @OneToMany(mappedBy = "estado")
     private List<Cidade> cidades = new ArrayList<>();
 
     public Estado() {
@@ -75,5 +78,14 @@ public class Estado implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Estado{" +
+                "id=" + id +
+                ", nome='" + nome + '\'' +
+                ", uf='" + uf + '\'' +
+                '}';
     }
 }

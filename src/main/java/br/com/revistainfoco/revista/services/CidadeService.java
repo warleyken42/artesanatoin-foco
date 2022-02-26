@@ -4,7 +4,6 @@ import br.com.revistainfoco.revista.domain.dto.request.CidadeRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.request.CidadeUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.CidadeResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Cidade;
-import br.com.revistainfoco.revista.domain.entity.Estado;
 import br.com.revistainfoco.revista.errors.exceptions.CidadeNaoEncontradaException;
 import br.com.revistainfoco.revista.repository.CidadeRepository;
 import org.modelmapper.ModelMapper;
@@ -19,7 +18,6 @@ public class CidadeService {
 
     private final CidadeRepository repository;
     private final ModelMapper modelMapper;
-
 
     @Autowired
     public CidadeService(CidadeRepository repository, ModelMapper modelMapper) {
@@ -43,32 +41,26 @@ public class CidadeService {
     }
 
     public CidadeResponseDTO readById(Long id) {
-        Cidade cidade = getCidade(id);
+        Cidade cidade = getCidadeById(id);
         return modelMapper.map(cidade, CidadeResponseDTO.class);
     }
 
     public CidadeResponseDTO update(Long id, CidadeUpdateRequestDTO cidadeUpdateRequestDTO) {
-        Cidade cidadeSalva = getCidade(id);
+        Cidade cidadeSalva = getCidadeById(id);
 
         cidadeSalva.setId(id);
         cidadeSalva.setNome(cidadeUpdateRequestDTO.getNome());
-
-        if (cidadeUpdateRequestDTO.getEstado() != null) {
-            Estado estado = modelMapper.map(cidadeUpdateRequestDTO.getEstado(), Estado.class);
-            cidadeSalva.setEstado(estado);
-        }
 
         Cidade cidadeAtualizada = repository.save(cidadeSalva);
         return modelMapper.map(cidadeAtualizada, CidadeResponseDTO.class);
     }
 
     public void delete(Long id) {
-        getCidade(id);
+        getCidadeById(id);
         repository.deleteById(id);
     }
 
-    private Cidade getCidade(Long id) {
+    private Cidade getCidadeById(Long id) {
         return repository.findById(id).orElseThrow(() -> new CidadeNaoEncontradaException("Cidade não encontrada"));
     }
-
 }
