@@ -12,10 +12,10 @@ public class Cidade implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nome", length = 128, columnDefinition = "VARCHAR(128)")
+    @Column(name = "nome", length = 128, columnDefinition = "VARCHAR(128)", nullable = false)
     private String nome;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "estado_id")
     private Estado estado;
 
@@ -63,5 +63,13 @@ public class Cidade implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Cidade{" +
+                "id=" + id +
+                ", nome='" + nome + '\'' +
+                '}';
     }
 }

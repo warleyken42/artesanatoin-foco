@@ -12,23 +12,23 @@ public class Endereco implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "logradouro", length = 128, columnDefinition = "VARCHAR(128)")
+    @Column(name = "logradouro", length = 128, columnDefinition = "VARCHAR(128)", nullable = false)
     private String logradouro;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "cidade_id")
     private Cidade cidade;
 
-    @Column(name = "cep", length = 8, columnDefinition = "VARCHAR(8)")
+    @Column(name = "cep", length = 8, columnDefinition = "VARCHAR(8)", nullable = false)
     private String cep;
 
-    @Column(name = "numero", length = 10, columnDefinition = "VARCHAR(10)")
+    @Column(name = "numero", length = 10, columnDefinition = "VARCHAR(10)", nullable = false)
     private String numero;
 
     @Column(name = "complemento", length = 25, columnDefinition = "VARCHAR(25)")
     private String complemento;
 
-    @Column(name = "bairro", length = 128, columnDefinition = "VARCHAR(128)")
+    @Column(name = "bairro", length = 128, columnDefinition = "VARCHAR(128)", nullable = false)
     private String bairro;
 
     public Endereco() {
@@ -111,5 +111,17 @@ public class Endereco implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Endereco{" +
+                "id=" + id +
+                ", logradouro='" + logradouro + '\'' +
+                ", cep='" + cep + '\'' +
+                ", numero='" + numero + '\'' +
+                ", complemento='" + complemento + '\'' +
+                ", bairro='" + bairro + '\'' +
+                '}';
     }
 }

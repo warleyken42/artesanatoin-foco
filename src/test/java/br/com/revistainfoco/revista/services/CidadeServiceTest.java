@@ -55,13 +55,13 @@ class CidadeServiceTest {
         cidadeMock = new Cidade(1L, "Jaguaribe", estadoMock);
 
         EstadoRequestDTO estadoRequestDTOMock = new EstadoRequestDTO("Ceará", "CE");
-        cidadeRequestDTOMock = new CidadeRequestDTO("Ceará", estadoRequestDTOMock);
+        cidadeRequestDTOMock = new CidadeRequestDTO("Ceará");
 
         EstadoResponseDTO estadoResponseDTOMock = new EstadoResponseDTO(1L, "Ceará", "CE");
-        cidadeResponseDTOMock = new CidadeResponseDTO(1L, "Jaguaribe", estadoResponseDTOMock);
+        cidadeResponseDTOMock = new CidadeResponseDTO(1L, "Jaguaribe");
 
         EstadoUpdateRequestDTO estadoUpdateRequestDTOMock = new EstadoUpdateRequestDTO(1L, "Ceará", "CE");
-        cidadeUpdateRequestDTOMock = new CidadeUpdateRequestDTO(1L, "Jaguaribe", estadoUpdateRequestDTOMock);
+        cidadeUpdateRequestDTOMock = new CidadeUpdateRequestDTO(1L, "Jaguaribe");
     }
 
 
@@ -108,7 +108,6 @@ class CidadeServiceTest {
                 .hasSize(2);
 
         Assertions.assertThat(cidadeCadastrada.getNome()).isEqualTo("Jaguaribe");
-        Assertions.assertThat(cidadeCadastrada.getEstado()).isNotNull();
         Assertions.assertThat(cidadeCadastrada.getId()).isEqualTo(1L);
 
         verify(repository, times(1)).findAll();
@@ -138,7 +137,6 @@ class CidadeServiceTest {
         Cidade cidadeComNomeErradoMock = new Cidade(1L, "jaguaribi", new Estado(1L, "Sear", "SE"));
 
         when(repository.findById(1L)).thenReturn(Optional.of(cidadeComNomeErradoMock));
-        when(modelMapper.map(cidadeUpdateRequestDTOMock.getEstado(), Estado.class)).thenReturn(estadoMock);
         when(repository.save(cidadeComNomeErradoMock)).thenReturn(cidadeMock);
         when(modelMapper.map(cidadeMock, CidadeResponseDTO.class)).thenReturn(cidadeResponseDTOMock);
 
@@ -147,8 +145,6 @@ class CidadeServiceTest {
         Assertions.assertThat(cidadeResponseDTO).isNotNull();
         Assertions.assertThat(cidadeResponseDTO.getNome()).isEqualTo("Jaguaribe");
         Assertions.assertThat(cidadeResponseDTO.getId()).isEqualTo(1L);
-        Assertions.assertThat(cidadeResponseDTO.getEstado().getNome()).isEqualTo("Ceará");
-        Assertions.assertThat(cidadeResponseDTO.getEstado().getUf()).isEqualTo("CE");
     }
 
     @Test
