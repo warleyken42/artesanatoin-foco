@@ -38,20 +38,20 @@ public class EnderecoService {
     @Transactional
     public EnderecoResponseDTO create(EnderecoRequestDTO enderecoRequestDTO) {
         Endereco enderecoParaSalvar = modelMapper.map(enderecoRequestDTO, Endereco.class);
-
-        Estado estado = estadoRepository.findByUf(enderecoRequestDTO.getUf());
-
-        if (enderecoParaSalvar.getCidade() != null) {
-            Cidade cidade = modelMapper.map(enderecoRequestDTO.getCidade(), Cidade.class);
-            if (estado != null) {
-                cidade.setEstado(estado);
-            }
-            enderecoParaSalvar.setCidade(cidade);
-            cidadeRepository.save(enderecoParaSalvar.getCidade());
-        }
-
-        Endereco enderecoSalvo = enderecoRepository.save(enderecoParaSalvar);
-        return modelMapper.map(enderecoSalvo, EnderecoResponseDTO.class);
+        return null;
+//
+//
+//        if (enderecoParaSalvar.getCidade() != null) {
+//            Cidade cidade = modelMapper.map(enderecoRequestDTO.getCidade(), Cidade.class);
+//            if (estado != null) {
+//                cidade.setEstado(estado);
+//            }
+//            enderecoParaSalvar.setCidade(cidade);
+//            cidadeRepository.save(enderecoParaSalvar.getCidade());
+//        }
+//
+//        Endereco enderecoSalvo = enderecoRepository.save(enderecoParaSalvar);
+//        return modelMapper.map(enderecoSalvo, EnderecoResponseDTO.class);
     }
 
 
@@ -76,23 +76,23 @@ public class EnderecoService {
     @Transactional
     public EnderecoResponseDTO update(Long id, EnderecoUpdateRequestDTO enderecoUpdateRequestDTO) {
         Endereco enderecoSalvo = getEndereco(id);
-        Estado estado = estadoRepository.findByUf(enderecoUpdateRequestDTO.getUf());
+//        Estado estado = estadoRepository.findByUf(enderecoUpdateRequestDTO.getUf());
 
         enderecoSalvo.setLogradouro(enderecoUpdateRequestDTO.getLogradouro());
 
-        if (enderecoUpdateRequestDTO.getCidade() != null) {
-            Cidade cidade = modelMapper.map(enderecoUpdateRequestDTO.getCidade(), Cidade.class);
-            if (estado != null) {
-                cidade.setEstado(estado);
-            }
-            if (enderecoUpdateRequestDTO.getCidade().getId() != null) {
-                cidade.setNome(enderecoUpdateRequestDTO.getCidade().getNome());
-                cidadeRepository.save(cidade);
-            } else {
-                Cidade novaCidadeCadastrada = cidadeRepository.save(new Cidade(null, cidade.getNome(), estado));
-                enderecoSalvo.setCidade(novaCidadeCadastrada);
-            }
-        }
+//        if (enderecoUpdateRequestDTO.getCidade() != null) {
+//            Cidade cidade = modelMapper.map(enderecoUpdateRequestDTO.getCidade(), Cidade.class);
+//            if (estado != null) {
+//                cidade.setEstado(estado);
+//            }
+//            if (enderecoUpdateRequestDTO.getCidade().getId() != null) {
+//                cidade.setNome(enderecoUpdateRequestDTO.getCidade().getNome());
+//                cidadeRepository.save(cidade);
+//            } else {
+//                Cidade novaCidadeCadastrada = cidadeRepository.save(new Cidade(null, cidade.getNome(), estado));
+//                enderecoSalvo.setCidade(novaCidadeCadastrada);
+//            }
+//        }
 
         enderecoSalvo.setCep(enderecoUpdateRequestDTO.getCep());
         enderecoSalvo.setNumero(enderecoUpdateRequestDTO.getNumero());

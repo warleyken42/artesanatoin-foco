@@ -10,7 +10,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -56,48 +55,49 @@ public class EstadoService {
         this.modelMapper = modelMapper;
     }
 
-    public EstadoResponseDTO create(EstadoRequestDTO estadoRequestDTO) {
-        Estado estado = modelMapper.map(estadoRequestDTO, Estado.class);
-        Estado estadoSalvo = repository.save(estado);
-        return modelMapper.map(estadoSalvo, EstadoResponseDTO.class);
+    public Estado create(Estado estado) {
+        return repository.save(estado);
     }
 
-    public List<EstadoResponseDTO> readAll() {
-        List<EstadoResponseDTO> estadosCadastrados = new ArrayList<>();
-        repository.findAll().forEach(estado -> {
-            EstadoResponseDTO estadoResponseDTO = modelMapper.map(estado, EstadoResponseDTO.class);
-            estadosCadastrados.add(estadoResponseDTO);
-        });
-        return estadosCadastrados;
-    }
-
-    public EstadoResponseDTO readById(Long id) {
-        Estado estado = findById(id);
-        return modelMapper.map(estado, EstadoResponseDTO.class);
-    }
-
-    public EstadoResponseDTO update(Long id, EstadoUpdateRequestDTO estadoUpdateRequestDTO) {
-        Estado estadoSalvo = findById(id);
-
-        estadoSalvo.setId(id);
-        estadoSalvo.setNome(estadoUpdateRequestDTO.getNome());
-        estadoSalvo.setUf(estadoUpdateRequestDTO.getUf());
-
-        Estado estadoAtualizado = repository.save(estadoSalvo);
-
-        return modelMapper.map(estadoAtualizado, EstadoResponseDTO.class);
-    }
-
-    public void delete(Long id) {
-        findById(id);
-        repository.deleteById(id);
+    public List<Estado> findAll() {
+        return repository.findAll();
     }
 
     public Estado findById(Long id) {
         return repository.findById(id).orElseThrow(() -> new EstadoNaoEncontradoException("Estado não encontrado"));
     }
 
+    public Estado findByNomeAndUf(String nome, String  uf) {
+        return repository.findByNomeAndUf(nome, uf).orElseThrow(() -> new EstadoNaoEncontradoException("Estado não encontrado"));
+    }
+
+
+    public Estado update(Long id, Estado estado) {
+        Estado estadoCadastrado = repository.findById(id).orElseThrow(() -> new EstadoNaoEncontradoException("Estado não encontrado"));
+        estadoCadastrado.setNome(estado.getNome());
+        estadoCadastrado.setUf(estado.getUf());
+        return  repository.save(estadoCadastrado);
+    }
+
+    public void delete(Long id) {
+        Estado estadoCadastrado = repository.findById(id).orElseThrow(() -> new EstadoNaoEncontradoException("Estado não encontrado"));
+        repository.delete(estadoCadastrado);
+    }
+
     public void populateAddressTable() {
         repository.saveAll(estados);
+    }
+
+    public Estado toEntity(EstadoRequestDTO estadoRequestDTO) {
+        return modelMapper.map(estadoRequestDTO, Estado.class);
+    }
+
+    public Estado toEntity(EstadoUpdateRequestDTO estadoUpdateRequestDTO) {
+        return modelMapper.map(estadoUpdateRequestDTO, Estado.class);
+    }
+
+
+    public EstadoResponseDTO toResponse(Estado estado) {
+        return modelMapper.map(estado, EstadoResponseDTO.class);
     }
 }

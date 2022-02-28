@@ -4,12 +4,15 @@ import br.com.revistainfoco.revista.errors.exceptions.CidadeJaCadastradaExceptio
 import br.com.revistainfoco.revista.errors.exceptions.CidadeNaoEncontradaException;
 import br.com.revistainfoco.revista.errors.exceptions.EstadoJaCadastradoException;
 import br.com.revistainfoco.revista.errors.exceptions.EstadoNaoEncontradoException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+@Slf4j
 @ControllerAdvice
 public class RestExceptionHandler {
 
@@ -43,4 +46,11 @@ public class RestExceptionHandler {
         return new ResponseEntity<>(errorDetail, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException dataIntegrityViolationException) {
+        String message = dataIntegrityViolationException.getMostSpecificCause().getMessage().substring(dataIntegrityViolationException.getMostSpecificCause().getMessage().indexOf("Detalhe: "));
+        ErrorDetail errorDetail = ErrorDetail.builder().mensagem("Falha ao realizar uma operação com o banco de dados. " + message).build();
+        log.error(dataIntegrityViolationException.getMostSpecificCause().getMessage());
+        return new ResponseEntity<>(errorDetail, HttpStatus.CONFLICT);
+    }
 }
