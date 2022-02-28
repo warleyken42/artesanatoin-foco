@@ -18,4 +18,7 @@ public class CidadeRequestDTO implements Serializable {
     @NotNull(message = "O campo nome é obrigatório")
     @Schema(description = "Nome da cidade que se deseja cadastrar", example = "Jaguaribe", required = true)
     private String nome;
+
+    @Schema(description = "Estado que pertence a cidade que se deseja cadastrar", required = true)
+    private EstadoRequestDTO estado;
 }

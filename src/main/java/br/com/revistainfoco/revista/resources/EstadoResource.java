@@ -3,6 +3,7 @@ package br.com.revistainfoco.revista.resources;
 import br.com.revistainfoco.revista.domain.dto.request.EstadoRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.request.EstadoUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.EstadoResponseDTO;
+import br.com.revistainfoco.revista.domain.entity.Estado;
 import br.com.revistainfoco.revista.errors.ErrorDetail;
 import br.com.revistainfoco.revista.services.EstadoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -39,8 +41,8 @@ public class EstadoResource {
     })
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EstadoResponseDTO> create(@RequestBody @Valid EstadoRequestDTO estadoRequestDTO) {
-        EstadoResponseDTO estadoCriado = service.create(estadoRequestDTO);
-        return new ResponseEntity<>(estadoCriado, HttpStatus.CREATED);
+        Estado estadoCadastrado = service.create(service.toEntity(estadoRequestDTO));
+        return new ResponseEntity<>(service.toResponse(estadoCadastrado), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Retorna todos os estados cadastrados", description = "Retorna todos os estados cadastrados", tags = {"estados"})
@@ -49,12 +51,15 @@ public class EstadoResource {
             @ApiResponse(responseCode = "204", description = "Não há estados cadastrados", content = @Content(schema = @Schema()))
     })
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> readAll() {
-        List<EstadoResponseDTO> estados = service.readAll();
-        if (estados.isEmpty()) {
+    public ResponseEntity<?> findAll() {
+        List<EstadoResponseDTO> estadosCadastrados = new ArrayList<>();
+        service.findAll().forEach(estado -> {
+            estadosCadastrados.add(service.toResponse(estado));
+        });
+        if (estadosCadastrados.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return new ResponseEntity<>(estados, HttpStatus.OK);
+        return new ResponseEntity<>(estadosCadastrados, HttpStatus.OK);
     }
 
     @Operation(summary = "Busca um estado cadastrado pelo seu id", description = "Busca um estado cadastrado pelo seu id", tags = {"estados"})
@@ -63,9 +68,9 @@ public class EstadoResource {
             @ApiResponse(responseCode = "404", description = "Estado não encontrado", content = @Content(schema = @Schema(implementation = ErrorDetail.class)))
     })
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<EstadoResponseDTO> readById(@PathVariable("id") Long id) {
-        EstadoResponseDTO estadoResponseDTO = service.readById(id);
-        return new ResponseEntity<>(estadoResponseDTO, HttpStatus.OK);
+    public ResponseEntity<EstadoResponseDTO> findById(@PathVariable("id") Long id) {
+        Estado estadoCadastrado = service.findById(id);
+        return new ResponseEntity<>(service.toResponse(estadoCadastrado), HttpStatus.OK);
     }
 
     @Operation(summary = "Atualiza os dados de um estado cadastrado", description = "Atualiza os dados de um estado cadastrado", tags = {"estados"})
@@ -77,8 +82,8 @@ public class EstadoResource {
     })
     @PutMapping(value = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EstadoResponseDTO> update(@PathVariable("id") Long id, @RequestBody @Valid EstadoUpdateRequestDTO estadoUpdateRequestDTO) {
-        EstadoResponseDTO estadoResponseDTO = service.update(id, estadoUpdateRequestDTO);
-        return new ResponseEntity<>(estadoResponseDTO, HttpStatus.OK);
+        Estado estadoAtualizado = service.update(id, service.toEntity(estadoUpdateRequestDTO));
+        return new ResponseEntity<>(service.toResponse(estadoAtualizado), HttpStatus.OK);
     }
 
     @Operation(summary = "Exclui um estado permanentemente", description = "Exclui um estado permanentemente", tags = {"estados"})

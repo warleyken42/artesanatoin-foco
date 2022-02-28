@@ -23,4 +23,7 @@ public class CidadeUpdateRequestDTO implements Serializable {
     @NotEmpty(message = "O campo nome é obrigatório")
     @Schema(description = "Nome da cidade que se deseja atualizar", example = "Jaguaribe", required = true)
     private String nome;
+
+    @Schema(description = "Estado que pertence a cidade que se deseja atualizar", required = true)
+    private EstadoUpdateRequestDTO estado;
 }
