@@ -6,7 +6,6 @@ import br.com.revistainfoco.revista.domain.dto.response.CidadeResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Cidade;
 import br.com.revistainfoco.revista.domain.entity.Estado;
 import br.com.revistainfoco.revista.errors.exceptions.CidadeNaoEncontradaException;
-import br.com.revistainfoco.revista.errors.exceptions.EstadoNaoEncontradoException;
 import br.com.revistainfoco.revista.repository.CidadeRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
