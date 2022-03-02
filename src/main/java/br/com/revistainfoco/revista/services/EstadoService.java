@@ -4,10 +4,12 @@ import br.com.revistainfoco.revista.domain.dto.request.EstadoRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.request.EstadoUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.EstadoResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Estado;
+import br.com.revistainfoco.revista.errors.exceptions.EstadoJaCadastradoException;
 import br.com.revistainfoco.revista.errors.exceptions.EstadoNaoEncontradoException;
 import br.com.revistainfoco.revista.repository.EstadoRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -56,7 +58,11 @@ public class EstadoService {
     }
 
     public Estado create(Estado estado) {
-        return repository.save(estado);
+        try {
+            return repository.save(estado);
+        } catch (DataIntegrityViolationException exception) {
+            throw new EstadoJaCadastradoException("Estado já cadastrado");
+        }
     }
 
     public List<Estado> findAll() {
@@ -67,16 +73,19 @@ public class EstadoService {
         return repository.findById(id).orElseThrow(() -> new EstadoNaoEncontradoException("Estado não encontrado"));
     }
 
-    public Estado findByNomeAndUf(String nome, String  uf) {
+    public Estado findByNomeAndUf(String nome, String uf) {
         return repository.findByNomeAndUf(nome, uf).orElseThrow(() -> new EstadoNaoEncontradoException("Estado não encontrado"));
     }
 
-
     public Estado update(Long id, Estado estado) {
-        Estado estadoCadastrado = repository.findById(id).orElseThrow(() -> new EstadoNaoEncontradoException("Estado não encontrado"));
-        estadoCadastrado.setNome(estado.getNome());
-        estadoCadastrado.setUf(estado.getUf());
-        return  repository.save(estadoCadastrado);
+        try {
+            Estado estadoCadastrado = repository.findById(id).orElseThrow(() -> new EstadoNaoEncontradoException("Estado não encontrado"));
+            estadoCadastrado.setNome(estado.getNome());
+            estadoCadastrado.setUf(estado.getUf());
+            return repository.save(estadoCadastrado);
+        } catch (DataIntegrityViolationException exception) {
+            throw new EstadoJaCadastradoException("Estado já cadastrado");
+        }
     }
 
     public void delete(Long id) {
