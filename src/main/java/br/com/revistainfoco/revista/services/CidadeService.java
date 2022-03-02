@@ -11,64 +11,61 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class CidadeService {
 
     private final CidadeRepository repository;
+    private final EstadoService estadoService;
     private final ModelMapper modelMapper;
 
-
     @Autowired
-    public CidadeService(CidadeRepository repository, ModelMapper modelMapper) {
+    public CidadeService(CidadeRepository repository, EstadoService estadoService, ModelMapper modelMapper) {
         this.repository = repository;
+        this.estadoService = estadoService;
         this.modelMapper = modelMapper;
     }
 
-    public CidadeResponseDTO create(CidadeRequestDTO cidadeRequestDTO) {
-        Cidade cidade = modelMapper.map(cidadeRequestDTO, Cidade.class);
-        Cidade cidadeSalvo = repository.save(cidade);
-        return modelMapper.map(cidadeSalvo, CidadeResponseDTO.class);
+    public Cidade create(Cidade cidade) {
+        Estado estadoCadastrado = estadoService.findByNomeAndUf(cidade.getEstado().getNome(), cidade.getEstado().getUf());
+        cidade.setEstado(estadoCadastrado);
+        return repository.save(cidade);
     }
 
-    public List<CidadeResponseDTO> readAll() {
-        List<CidadeResponseDTO> cidadesCadastrados = new ArrayList<>();
-        repository.findAll().forEach(cidade -> {
-            CidadeResponseDTO cidadeResponseDTO = modelMapper.map(cidade, CidadeResponseDTO.class);
-            cidadesCadastrados.add(cidadeResponseDTO);
-        });
-        return cidadesCadastrados;
+    public List<Cidade> findAll() {
+        return repository.findAll();
     }
 
-    public CidadeResponseDTO readById(Long id) {
-        Cidade cidade = getCidade(id);
-        return modelMapper.map(cidade, CidadeResponseDTO.class);
+    public Cidade findById(Long id) {
+        return repository.findById(id).orElseThrow(() -> new CidadeNaoEncontradaException("Cidade não encontrada"));
     }
 
-    public CidadeResponseDTO update(Long id, CidadeUpdateRequestDTO cidadeUpdateRequestDTO) {
-        Cidade cidadeSalva = getCidade(id);
+    public Cidade update(Long id, Cidade cidade) {
+        Cidade cidadeCadastrada = repository.findById(id).orElseThrow(() -> new CidadeNaoEncontradaException("Cidade não encontrado"));
+        Estado estadoCadastrado = estadoService.findByNomeAndUf(cidade.getEstado().getNome(), cidade.getEstado().getUf());
 
-        cidadeSalva.setId(id);
-        cidadeSalva.setNome(cidadeUpdateRequestDTO.getNome());
+        cidadeCadastrada.setNome(cidade.getNome());
+        cidadeCadastrada.setEstado(estadoCadastrado);
 
-        if (cidadeUpdateRequestDTO.getEstado() != null) {
-            Estado estado = modelMapper.map(cidadeUpdateRequestDTO.getEstado(), Estado.class);
-            cidadeSalva.setEstado(estado);
-        }
-
-        Cidade cidadeAtualizada = repository.save(cidadeSalva);
-        return modelMapper.map(cidadeAtualizada, CidadeResponseDTO.class);
+        return repository.save(cidadeCadastrada);
     }
 
     public void delete(Long id) {
-        getCidade(id);
-        repository.deleteById(id);
+        Cidade cidadeCadastrada = repository.findById(id).orElseThrow(() -> new CidadeNaoEncontradaException("Cidade não encontrado"));
+        repository.delete(cidadeCadastrada);
     }
 
-    private Cidade getCidade(Long id) {
-        return repository.findById(id).orElseThrow(() -> new CidadeNaoEncontradaException("Cidade não encontrada"));
+    public Cidade toEntity(CidadeRequestDTO cidadeRequestDTO) {
+        return modelMapper.map(cidadeRequestDTO, Cidade.class);
+    }
+
+    public Cidade toEntity(CidadeUpdateRequestDTO cidadeUpdateRequestDTO) {
+        return modelMapper.map(cidadeUpdateRequestDTO, Cidade.class);
+    }
+
+    public CidadeResponseDTO toResponse(Cidade cidade) {
+        return modelMapper.map(cidade, CidadeResponseDTO.class);
     }
 
 }
