@@ -4,7 +4,9 @@ import br.com.revistainfoco.revista.domain.entity.Endereco;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface EnderecoRepository extends JpaRepository<Endereco, Long> {
-    Endereco findByCep(String cep);
+    Optional<Endereco> findByCep(String cep);
 }

@@ -77,9 +77,10 @@ class EstadoServiceTest {
 
         List<Estado> estadosCadastrados = service.findAll();
 
-        Assertions.assertThat(estadosCadastrados).isNotNull();
-        Assertions.assertThat(estadosCadastrados).isNotEmpty();
-        Assertions.assertThat(estadosCadastrados.size()).isEqualTo(3);
+        Assertions.assertThat(estadosCadastrados)
+                .isNotNull()
+                .isNotEmpty()
+                .hasSize(3);
     }
 
     @Test
@@ -139,17 +140,17 @@ class EstadoServiceTest {
     @Test
     @DisplayName(value = "Dado um id de um estado que não está cadastrado quando tentar recuperar o estado pelo id então deve lançar a exception EstadoNaoEncontradoException")
     void DadoUmIdDeUmEstadoQueNaoEstaCadastradoQuandoTentarRecuperarOEstadoPeloIdEntaoDeveLancarAExceptionEstadoNaoEncontradoException() {
-        when(repository.findById(any())).thenThrow(EstadoNaoEncontradoException.class);
+        when(repository.findById(1L)).thenThrow(EstadoNaoEncontradoException.class);
 
-        assertThrows(EstadoNaoEncontradoException.class, () -> service.findById(any()));
+        assertThrows(EstadoNaoEncontradoException.class, () -> service.findById(1L));
     }
 
     @Test
     @DisplayName(value = "Dado um id de um estado que não está cadastrado quando tentar atualizar o estado então deve lançar a exception EstadoNaoEncontradoException")
     void DadoUmIdDeUmEstadoQueNaoEstaCadastradoQuandoTentarAtualizarOEstadoEntaoDeveLancarAExceptionEstadoNaoEncontradoException() {
-        when(repository.findById(any())).thenThrow(EstadoNaoEncontradoException.class);
+        when(repository.findById(1L)).thenThrow(EstadoNaoEncontradoException.class);
 
-        assertThrows(EstadoNaoEncontradoException.class, () -> service.update(any(), estadoCadastrado));
+        assertThrows(EstadoNaoEncontradoException.class, () -> service.update(1L, estadoCadastrado));
 
     }
 
@@ -179,9 +180,9 @@ class EstadoServiceTest {
     @DisplayName(value = "Dado um nome de estado e uma uf quando não encontrar o estado cadastrado então deve lançar EstadoNaoEncontradoException")
     void DadoUmNomeEeEstadEUmaUfQuandoNaoEncontrarOEstadoCadastradoEntaoDeveLancarEstadoNaoEncontradoException() {
 
-        when(repository.findByNomeAndUf(any(), any())).thenReturn(Optional.empty());
+        when(repository.findByNomeAndUf("Estado", "EF")).thenReturn(Optional.empty());
 
-        assertThrows(EstadoNaoEncontradoException.class, () -> service.findByNomeAndUf(anyString(), anyString()));
+        assertThrows(EstadoNaoEncontradoException.class, () -> service.findByNomeAndUf("Estado", "EF"));
     }
 
     @Test

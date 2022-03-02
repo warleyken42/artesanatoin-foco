@@ -90,9 +90,10 @@ class CidadeServiceTest {
 
         List<Cidade> cidadesCadastradas = cidadeService.findAll();
 
-        Assertions.assertThat(cidadesCadastradas).isNotNull();
-        Assertions.assertThat(cidadesCadastradas).isNotEmpty();
-        Assertions.assertThat(cidadesCadastradas.size()).isEqualTo(3);
+        Assertions.assertThat(cidadesCadastradas)
+                .isNotNull()
+                .isNotEmpty()
+                .hasSize(3);
     }
 
     @Test
