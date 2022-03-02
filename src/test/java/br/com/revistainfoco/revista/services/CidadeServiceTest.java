@@ -8,7 +8,6 @@ import br.com.revistainfoco.revista.domain.dto.response.CidadeResponseDTO;
 import br.com.revistainfoco.revista.domain.dto.response.EstadoResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Cidade;
 import br.com.revistainfoco.revista.domain.entity.Estado;
-import br.com.revistainfoco.revista.errors.exceptions.CidadeJaCadastradaException;
 import br.com.revistainfoco.revista.errors.exceptions.CidadeNaoEncontradaException;
 import br.com.revistainfoco.revista.repository.CidadeRepository;
 import org.assertj.core.api.Assertions;
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,169 +27,195 @@ import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CidadeServiceTest {
 
     @Mock
-    private CidadeRepository repository;
+    private CidadeRepository cidadeRepository;
+
+    @Mock
+    private EstadoService estadoService;
 
     @Mock
     private ModelMapper modelMapper;
 
     @InjectMocks
-    private CidadeService service;
+    private CidadeService cidadeService;
 
-    private Estado estadoMock;
-    private Cidade cidadeMock;
-    private CidadeRequestDTO cidadeRequestDTOMock;
-    private CidadeResponseDTO cidadeResponseDTOMock;
-    private CidadeUpdateRequestDTO cidadeUpdateRequestDTOMock;
+    private Cidade cidade;
+    private Estado estado;
+    private Cidade cidadeCadastrada;
+    private CidadeRequestDTO cidadeRequestDTO;
 
     @BeforeEach
-    void beaforeEach() {
-        estadoMock = new Estado(1L, "Ceará", "CE");
-        cidadeMock = new Cidade(1L, "Jaguaribe", estadoMock);
-
-        EstadoRequestDTO estadoRequestDTOMock = new EstadoRequestDTO("Ceará", "CE");
-        cidadeRequestDTOMock = new CidadeRequestDTO("Ceará", estadoRequestDTOMock);
-
-        EstadoResponseDTO estadoResponseDTOMock = new EstadoResponseDTO(1L, "Ceará", "CE");
-        cidadeResponseDTOMock = new CidadeResponseDTO(1L, "Jaguaribe", estadoResponseDTOMock);
-
-        EstadoUpdateRequestDTO estadoUpdateRequestDTOMock = new EstadoUpdateRequestDTO(1L, "Ceará", "CE");
-        cidadeUpdateRequestDTOMock = new CidadeUpdateRequestDTO(1L, "Jaguaribe", estadoUpdateRequestDTOMock);
+    void beforeEach() {
+        estado = new Estado(1L, "Ceará", "CE");
+        cidade = new Cidade(null, "Jaguaribe", estado);
+        cidadeCadastrada = new Cidade(1L, "Jaguaribe", estado);
+        EstadoRequestDTO estadoRequestDTO = new EstadoRequestDTO("Ceará", "CE");
+        cidadeRequestDTO = new CidadeRequestDTO("Jaguaribe", estadoRequestDTO);
     }
-
 
     @Test
     @DisplayName(value = "Dado uma cidade quando tentar salvar no banco de dados então deve retornar a cidade salva")
     void DadoUmaCidadeQuandoTentarSalvarNoBancoDeDadosEntaoDeveRetorarACidadeSalva() {
 
-        when(modelMapper.map(cidadeRequestDTOMock, Cidade.class)).thenReturn(cidadeMock);
-        when(modelMapper.map(cidadeMock, CidadeResponseDTO.class)).thenReturn(cidadeResponseDTOMock);
+        when(estadoService.findByNomeAndUf(anyString(), anyString())).thenReturn(estado);
+        when(cidadeRepository.save(any())).thenReturn(cidadeCadastrada);
 
-        when(repository.save(cidadeMock)).thenReturn(cidadeMock);
+        Cidade cidadeCadastrada = cidadeService.create(cidade);
 
-        CidadeResponseDTO cidadeCriada = service.create(cidadeRequestDTOMock);
-
-        Assertions.assertThat(cidadeCriada).isNotNull();
-        Assertions.assertThat(cidadeCriada.getId()).isNotNull();
-        Assertions.assertThat(cidadeCriada.getNome()).isNotNull();
-
-        Assertions.assertThat(cidadeCriada.getId()).isEqualTo(1L);
-        Assertions.assertThat(cidadeCriada.getNome()).isEqualTo("Jaguaribe");
-
+        Assertions.assertThat(cidadeCadastrada).isNotNull();
+        Assertions.assertThat(cidadeCadastrada.getId()).isEqualTo(1L);
+        Assertions.assertThat(cidadeCadastrada.getNome()).isEqualTo("Jaguaribe");
+        Assertions.assertThat(cidadeCadastrada.getEstado()).isNotNull();
+        Assertions.assertThat(cidadeCadastrada.getEstado().getId()).isEqualTo(1L);
+        Assertions.assertThat(cidadeCadastrada.getEstado().getUf()).isEqualTo("CE");
+        Assertions.assertThat(cidadeCadastrada.getEstado().getNome()).isEqualTo("Ceará");
     }
 
     @Test
     @DisplayName(value = "Dado uma solicitação para ler todas as cidades cadastradas então deve retornar todas as cidades cadastradas")
     void DadoUmaSolicitacaoParaLerTodasAsCidadesCadastradaEntaoDeveRetornarTodasAsCidadesCadastradas() {
-
-        List<Cidade> cidadesCadastradosMock = asList(
-                new Cidade(1L, "Jaguaribe", new Estado()),
-                new Cidade(2L, "Ico", new Estado())
+        List<Cidade> cidades = asList(
+                new Cidade(1L, "Jaguaribe", new Estado(1L, "Ceará", "CE")),
+                new Cidade(2L, "Icó", new Estado(1L, "Ceará", "CE")),
+                new Cidade(2L, "Guarulhos", new Estado(2L, "São Paulo", "SP"))
         );
 
-        when(repository.findAll()).thenReturn(cidadesCadastradosMock);
-        when(modelMapper.map(cidadeMock, CidadeResponseDTO.class)).thenReturn(cidadeResponseDTOMock);
+        when(cidadeRepository.findAll()).thenReturn(cidades);
 
-        List<CidadeResponseDTO> cidadesCadastradas = service.readAll();
+        List<Cidade> cidadesCadastradas = cidadeService.findAll();
 
-        CidadeResponseDTO cidadeCadastrada = cidadesCadastradas.get(0);
-
-        Assertions.assertThat(cidadesCadastradas)
-                .isNotNull()
-                .isNotEmpty()
-                .contains(cidadeCadastrada)
-                .hasSize(2);
-
-        Assertions.assertThat(cidadeCadastrada.getNome()).isEqualTo("Jaguaribe");
-        Assertions.assertThat(cidadeCadastrada.getEstado()).isNotNull();
-        Assertions.assertThat(cidadeCadastrada.getId()).isEqualTo(1L);
-
-        verify(repository, times(1)).findAll();
-
-
+        Assertions.assertThat(cidadesCadastradas).isNotNull();
+        Assertions.assertThat(cidadesCadastradas).isNotEmpty();
+        Assertions.assertThat(cidadesCadastradas.size()).isEqualTo(3);
     }
 
     @Test
     @DisplayName(value = "Dado um id quando tentar ler uma cidade pelo id então deve retornar a cidade")
     void DadoUmIdQuandoTentarLerUmaCidadePeloIdDeveRetornarACidade() {
 
-        when(repository.findById(1L)).thenReturn(Optional.of(cidadeMock));
+        when(cidadeRepository.findById(1L)).thenReturn(Optional.of(cidadeCadastrada));
 
-        when(modelMapper.map(cidadeMock, CidadeResponseDTO.class)).thenReturn(cidadeResponseDTOMock);
+        Cidade cidadeCadastrada = cidadeService.findById(1L);
 
-        CidadeResponseDTO cidadeCadastrado = service.readById(1L);
-
-        Assertions.assertThat(cidadeCadastrado).isNotNull();
-        Assertions.assertThat(cidadeCadastrado.getId()).isEqualTo(1L);
-        Assertions.assertThat(cidadeCadastrado.getNome()).isEqualTo("Jaguaribe");
+        Assertions.assertThat(cidadeCadastrada).isNotNull();
+        Assertions.assertThat(cidadeCadastrada.getId()).isEqualTo(1L);
+        Assertions.assertThat(cidadeCadastrada.getNome()).isEqualTo("Jaguaribe");
+        Assertions.assertThat(cidadeCadastrada.getEstado()).isNotNull();
+        Assertions.assertThat(cidadeCadastrada.getEstado().getId()).isEqualTo(1L);
+        Assertions.assertThat(cidadeCadastrada.getEstado().getUf()).isEqualTo("CE");
+        Assertions.assertThat(cidadeCadastrada.getEstado().getNome()).isEqualTo("Ceará");
     }
 
     @Test
     @DisplayName("Dado uma cidade para atualizar quando tentar atualizar os dados então deve retornar a cidade com os dados atualizados")
     void DadoUmACidadeParaAtualizarQuandoTentarAtualizarOsDadosEntaoDeveRetornarACidadeComOsDadosAtualizados() {
+        Cidade cidadeComNovosDados = new Cidade(1L, "Jaguaribe 2", estado);
 
-        Cidade cidadeComNomeErradoMock = new Cidade(1L, "jaguaribi", new Estado(1L, "Sear", "SE"));
+        when(cidadeRepository.findById(1L)).thenReturn(Optional.of(cidadeCadastrada));
+        when(estadoService.findByNomeAndUf(anyString(), anyString())).thenReturn(estado);
 
-        when(repository.findById(1L)).thenReturn(Optional.of(cidadeComNomeErradoMock));
-        when(modelMapper.map(cidadeUpdateRequestDTOMock.getEstado(), Estado.class)).thenReturn(estadoMock);
-        when(repository.save(cidadeComNomeErradoMock)).thenReturn(cidadeMock);
-        when(modelMapper.map(cidadeMock, CidadeResponseDTO.class)).thenReturn(cidadeResponseDTOMock);
+        when(cidadeRepository.save(cidadeCadastrada)).thenReturn(cidadeComNovosDados);
 
-        CidadeResponseDTO cidadeResponseDTO = service.update(1L, cidadeUpdateRequestDTOMock);
+        Cidade cidadeAtualizada = cidadeService.update(1L, cidadeCadastrada);
 
-        Assertions.assertThat(cidadeResponseDTO).isNotNull();
-        Assertions.assertThat(cidadeResponseDTO.getNome()).isEqualTo("Jaguaribe");
-        Assertions.assertThat(cidadeResponseDTO.getId()).isEqualTo(1L);
-        Assertions.assertThat(cidadeResponseDTO.getEstado().getNome()).isEqualTo("Ceará");
-        Assertions.assertThat(cidadeResponseDTO.getEstado().getUf()).isEqualTo("CE");
+        Assertions.assertThat(cidadeAtualizada).isNotNull();
+        Assertions.assertThat(cidadeAtualizada.getId()).isEqualTo(1L);
+        Assertions.assertThat(cidadeAtualizada.getNome()).isEqualTo("Jaguaribe 2");
+        Assertions.assertThat(cidadeAtualizada.getEstado()).isNotNull();
+        Assertions.assertThat(cidadeAtualizada.getEstado().getId()).isEqualTo(1L);
+        Assertions.assertThat(cidadeAtualizada.getEstado().getUf()).isEqualTo("CE");
+        Assertions.assertThat(cidadeAtualizada.getEstado().getNome()).isEqualTo("Ceará");
     }
 
     @Test
     @DisplayName(value = "Dado um id quando tentar deletar uma cidade então deve excluir a cidade do banco de dados")
     void DadoUmIdQuandoTentarDeletarUmaCidadeEntaoDeveExcluirACidadeDoBancoDeDados() {
+        when(cidadeRepository.findById(any())).thenReturn(Optional.of(cidadeCadastrada));
 
-        when(repository.findById(1L)).thenReturn(Optional.of(cidadeMock));
-
-        assertDoesNotThrow(() -> service.delete(1L));
-    }
-
-    @Test
-    @DisplayName(value = "Dado uma cidade já cadastrada quando tentar cadastrar novamente então deve lançar a exception CidadeJaCadastradaException")
-    void DadoUmACidadeJaCadastradaQuandoTentarCadastrarNovamenteEntaoDeveLancarAExceptionCidadeJaCadastradaException() {
-
-        when(repository.save(any())).thenThrow(CidadeJaCadastradaException.class);
-
-        assertThrows(CidadeJaCadastradaException.class, () -> service.create(cidadeRequestDTOMock));
+        assertDoesNotThrow(() -> cidadeService.delete(any()));
     }
 
     @Test
     @DisplayName(value = "Dado um id de uma cidade que não está cadastrada quando tentar recuperar a cidade pelo id então deve lançar a exception CidadeNaoEncontradaException")
     void DadoUmIdDeUmaCidadeQueNaoEstaCadastradaQuandoTentarRecuperarACidadePeloIdEntaoDeveLancarAExceptionCidadeNaoEncontradaException() {
+        when(cidadeRepository.findById(any())).thenReturn(Optional.empty());
 
-        when(repository.findById(ArgumentMatchers.any())).thenThrow(CidadeNaoEncontradaException.class);
-
-        assertThrows(CidadeNaoEncontradaException.class, () -> service.readById(1L));
+        assertThrows(CidadeNaoEncontradaException.class, () -> cidadeService.findById(1L));
     }
 
     @Test
     @DisplayName(value = "Dado um id de uma cidade que não está cadastrada quando tentar atualizar então deve lançar a exception CidadeNaoEncontradaException")
     void DadoUmIdDeUmaCidadeQueNaoEstaCadastradaQuandoTentarAtualizarEntaoDeveLancarAExceptionCidadeNaoEncontradaException() {
+        when(cidadeRepository.findById(1L)).thenReturn(Optional.empty());
 
-        when(repository.findById(ArgumentMatchers.any())).thenThrow(CidadeNaoEncontradaException.class);
-
-        assertThrows(CidadeNaoEncontradaException.class, () -> service.update(1L, cidadeUpdateRequestDTOMock));
+        assertThrows(CidadeNaoEncontradaException.class, () -> cidadeService.update(1L, cidade));
     }
 
     @Test
     @DisplayName(value = "Dado um id de uma cidade que não está cadastrada quando tentar excluir então deve lançar a exception CidadeNaoEncontradaException")
     void DadoUmIdDeUmaCidadeQueNaoEstaCadastradaQuandoTentarExcluirEntaoDeveLancarAExceptionCidadeNaoEncontradaException() {
-        when(repository.findById(ArgumentMatchers.any())).thenThrow(CidadeNaoEncontradaException.class);
+        when(cidadeRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(CidadeNaoEncontradaException.class, () -> service.delete(1L));
+        assertThrows(CidadeNaoEncontradaException.class, () -> cidadeService.delete(1L));
+    }
+
+    @Test
+    @DisplayName(value = "Dado um CidadeRequestDTO quando tentar converter para a entidade Cidade então deve retornar a entidade cidade")
+    void DadoUmCidadeRequestDTOQuandoTentarConverterParaAEntidadeCidadeEntaoDeveRetornarAEntidadeCidade() {
+
+        when(modelMapper.map(cidadeRequestDTO, Cidade.class)).thenReturn(cidade);
+
+        Cidade cidade = cidadeService.toEntity(cidadeRequestDTO);
+
+        Assertions.assertThat(cidade).isNotNull();
+        Assertions.assertThat(cidade.getNome()).isEqualTo("Jaguaribe");
+        Assertions.assertThat(cidade.getEstado()).isNotNull();
+        Assertions.assertThat(cidade.getEstado().getId()).isEqualTo(1L);
+        Assertions.assertThat(cidade.getEstado().getUf()).isEqualTo("CE");
+        Assertions.assertThat(cidade.getEstado().getNome()).isEqualTo("Ceará");
+    }
+
+    @Test
+    @DisplayName(value = "Dado um CidadeUpdateRequestDTO quando tentar converter para a entidade Cidade então deve retornar a entidade cidade")
+    void DadoUmCidadeRequestUpdateDTOQuandoTentarConverterParaAEntidadeCidadeEntaoDeveRetornarAEntidadeCidade() {
+        EstadoUpdateRequestDTO estadoUpdateRequestDTO = new EstadoUpdateRequestDTO(1L, "Ceará", "CE");
+        CidadeUpdateRequestDTO cidadeUpdateRequestDTO = new CidadeUpdateRequestDTO(1L, "Jaguaribe", estadoUpdateRequestDTO);
+
+        when(modelMapper.map(cidadeUpdateRequestDTO, Cidade.class)).thenReturn(cidadeCadastrada);
+
+        Cidade cidade = cidadeService.toEntity(cidadeUpdateRequestDTO);
+
+        Assertions.assertThat(cidade).isNotNull();
+        Assertions.assertThat(cidade.getId()).isEqualTo(1L);
+        Assertions.assertThat(cidade.getNome()).isEqualTo("Jaguaribe");
+        Assertions.assertThat(cidade.getEstado()).isNotNull();
+        Assertions.assertThat(cidade.getEstado().getId()).isEqualTo(1L);
+        Assertions.assertThat(cidade.getEstado().getUf()).isEqualTo("CE");
+        Assertions.assertThat(cidade.getEstado().getNome()).isEqualTo("Ceará");
+    }
+
+    @Test
+    @DisplayName(value = "Dado uma entidade Cidade ao tentar converter para CidadeResponseDTO então deve retornar CidadeResponseDTO")
+    void DadoUmaEntidadeCidadeAoTentarConverterParaCidadeResponseDTOEntaoDeveRetornarCidadeResponseDTO() {
+        EstadoResponseDTO estadoResponseDTO = new EstadoResponseDTO(1L, "Ceará", "CE");
+        CidadeResponseDTO cidadeResponseDTO = new CidadeResponseDTO(1L, "Jaguaribe", estadoResponseDTO);
+
+        when(modelMapper.map(cidadeCadastrada, CidadeResponseDTO.class)).thenReturn(cidadeResponseDTO);
+
+        CidadeResponseDTO cidadeResponse = cidadeService.toResponse(cidadeCadastrada);
+
+        Assertions.assertThat(cidadeResponse).isNotNull();
+        Assertions.assertThat(cidadeResponse.getId()).isEqualTo(1L);
+        Assertions.assertThat(cidadeResponse.getNome()).isEqualTo("Jaguaribe");
+        Assertions.assertThat(cidadeResponse.getEstado()).isNotNull();
+        Assertions.assertThat(cidadeResponse.getEstado().getId()).isEqualTo(1L);
+        Assertions.assertThat(cidadeResponse.getEstado().getUf()).isEqualTo("CE");
+        Assertions.assertThat(cidadeResponse.getEstado().getNome()).isEqualTo("Ceará");
     }
 }

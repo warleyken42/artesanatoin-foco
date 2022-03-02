@@ -3,6 +3,7 @@ package br.com.revistainfoco.revista.resources;
 import br.com.revistainfoco.revista.domain.dto.request.CidadeRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.request.CidadeUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.CidadeResponseDTO;
+import br.com.revistainfoco.revista.domain.entity.Cidade;
 import br.com.revistainfoco.revista.errors.ErrorDetail;
 import br.com.revistainfoco.revista.services.CidadeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -39,8 +41,9 @@ public class CidadeResource {
     })
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CidadeResponseDTO> create(@RequestBody @Valid CidadeRequestDTO cidadeRequestDTO) {
-        CidadeResponseDTO cidadeCriado = service.create(cidadeRequestDTO);
-        return new ResponseEntity<>(cidadeCriado, HttpStatus.CREATED);
+        Cidade cidade = service.toEntity(cidadeRequestDTO);
+        Cidade cidadeCadastrada = service.create(cidade);
+        return new ResponseEntity<>(service.toResponse(cidadeCadastrada), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Retorna todas as cidades cadastradas", description = "Retorna todas as cidades cadastradas", tags = {"cidades"})
@@ -49,12 +52,15 @@ public class CidadeResource {
             @ApiResponse(responseCode = "204", description = "Não há cidades cadastradas", content = @Content(schema = @Schema()))
     })
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> readAll() {
-        List<CidadeResponseDTO> cidades = service.readAll();
-        if (cidades.isEmpty()) {
+    public ResponseEntity<?> findAll() {
+        List<CidadeResponseDTO> cidadesCadastradas = new ArrayList<>();
+        service.findAll().forEach(cidade -> {
+            cidadesCadastradas.add(service.toResponse(cidade));
+        });
+        if (cidadesCadastradas.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return new ResponseEntity<>(cidades, HttpStatus.OK);
+        return new ResponseEntity<>(cidadesCadastradas, HttpStatus.OK);
     }
 
     @Operation(summary = "Busca uma cidade cadastrada pelo seu id", description = "Busca uma cidade cadastrado pelo seu id", tags = {"cidades"})
@@ -63,9 +69,9 @@ public class CidadeResource {
             @ApiResponse(responseCode = "404", description = "Cidade não encontrada", content = @Content(schema = @Schema(implementation = ErrorDetail.class)))
     })
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CidadeResponseDTO> readById(@PathVariable("id") Long id) {
-        CidadeResponseDTO cidadeResponseDTO = service.readById(id);
-        return new ResponseEntity<>(cidadeResponseDTO, HttpStatus.OK);
+    public ResponseEntity<CidadeResponseDTO> findById(@PathVariable("id") Long id) {
+        CidadeResponseDTO cidadeCadastrada = service.toResponse(service.findById(id));
+        return new ResponseEntity<>(cidadeCadastrada, HttpStatus.OK);
     }
 
     @Operation(summary = "Atualiza os dados de uma cidade cadastrado", description = "Atualiza os dados de uma cidade cadastrado", tags = {"cidades"})
@@ -77,8 +83,10 @@ public class CidadeResource {
     })
     @PutMapping(value = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CidadeResponseDTO> update(@PathVariable("id") Long id, @RequestBody @Valid CidadeUpdateRequestDTO cidadeUpdateRequestDTO) {
-        CidadeResponseDTO cidadeResponseDTO = service.update(id, cidadeUpdateRequestDTO);
-        return new ResponseEntity<>(cidadeResponseDTO, HttpStatus.OK);
+        Cidade cidade = service.toEntity(cidadeUpdateRequestDTO);
+        Cidade cidadeAtualizada = service.update(id, cidade);
+        return new ResponseEntity<>(service.toResponse(cidadeAtualizada), HttpStatus.OK);
+
     }
 
     @Operation(summary = "Exclui uma cidade permanentemente", description = "Exclui uma cidade permanentemente", tags = {"cidades"})

@@ -6,82 +6,93 @@ import br.com.revistainfoco.revista.domain.dto.response.EnderecoResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Cidade;
 import br.com.revistainfoco.revista.domain.entity.Endereco;
 import br.com.revistainfoco.revista.errors.exceptions.EnderecoNaoEncontradoException;
-import br.com.revistainfoco.revista.errors.exceptions.EstadoNaoEncontradoException;
 import br.com.revistainfoco.revista.repository.EnderecoRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
 public class EnderecoService {
 
     private final EnderecoRepository repository;
+    private final CidadeService cidadeService;
     private final ModelMapper modelMapper;
 
+
     @Autowired
-    public EnderecoService(EnderecoRepository repository, ModelMapper modelMapper) {
+    public EnderecoService(EnderecoRepository repository, CidadeService cidadeService, ModelMapper modelMapper) {
         this.repository = repository;
+        this.cidadeService = cidadeService;
         this.modelMapper = modelMapper;
     }
 
-    public EnderecoResponseDTO create(EnderecoRequestDTO enderecoRequestDTO) {
-        Endereco enderecoParaSalvar = modelMapper.map(enderecoRequestDTO, Endereco.class);
-        Endereco enderecoSalvo = repository.save(enderecoParaSalvar);
-        return modelMapper.map(enderecoSalvo, EnderecoResponseDTO.class);
+    @Transactional
+    public Endereco create(Endereco endereco) {
+        Cidade cidadeCadastrada;
+        if (endereco.getCidade() != null && endereco.getCidade().getId() != null) {
+            cidadeCadastrada = cidadeService.findById(endereco.getCidade().getId());
+        } else {
+            cidadeCadastrada = cidadeService.create(new Cidade(null, endereco.getCidade().getNome(), endereco.getCidade().getEstado()));
+        }
+        endereco.setCidade(cidadeCadastrada);
+        return repository.save(endereco);
     }
 
-
-    public List<EnderecoResponseDTO> readAll() {
-        List<EnderecoResponseDTO> enderecosCadastrados = new ArrayList<>();
-        repository.findAll().forEach(endereco -> {
-            EnderecoResponseDTO enderecoResponseDTO = modelMapper.map(endereco, EnderecoResponseDTO.class);
-            enderecosCadastrados.add(enderecoResponseDTO);
-        });
-        return enderecosCadastrados;
+    public List<Endereco> findAll() {
+        return repository.findAll();
     }
 
-    public EnderecoResponseDTO readById(Long id) {
-        Endereco endereco = getEndereco(id);
-        return modelMapper.map(endereco, EnderecoResponseDTO.class);
-    }
-
-    private Endereco getEndereco(Long id) {
+    public Endereco findById(Long id) {
         return repository.findById(id).orElseThrow(() -> new EnderecoNaoEncontradoException("Endereço não encontrado"));
     }
 
-    public EnderecoResponseDTO update(Long id, EnderecoUpdateRequestDTO enderecoUpdateRequestDTO) {
-        Endereco enderecoSalvo = getEndereco(id);
+    public Endereco update(Long id, Endereco endereco) {
+        Endereco enderecoCadastrado = repository.findById(id).orElseThrow(() -> new EnderecoNaoEncontradoException("Endereço não encontrado"));
 
-        enderecoSalvo.setId(id);
-        enderecoSalvo.setLogradouro(enderecoUpdateRequestDTO.getLogradouro());
-        enderecoSalvo.setCep(enderecoUpdateRequestDTO.getCep());
-        enderecoSalvo.setNumero(enderecoUpdateRequestDTO.getNumero());
-        enderecoSalvo.setComplemento(enderecoUpdateRequestDTO.getComplemento());
-        enderecoSalvo.setBairro(enderecoUpdateRequestDTO.getBairro());
+        Cidade cidadeCadastrada;
 
-        if (enderecoUpdateRequestDTO.getCidade() != null) {
-            Cidade cidade = modelMapper.map(enderecoUpdateRequestDTO.getCidade(), Cidade.class);
-            enderecoSalvo.setCidade(cidade);
+        enderecoCadastrado.setLogradouro(enderecoCadastrado.getLogradouro());
+        enderecoCadastrado.setCep(endereco.getCep());
+        enderecoCadastrado.setNumero(endereco.getNumero());
+        enderecoCadastrado.setComplemento(enderecoCadastrado.getComplemento());
+        enderecoCadastrado.setBairro(enderecoCadastrado.getBairro());
+
+        if (endereco.getCidade() != null && endereco.getCidade().getId() != null) {
+            cidadeCadastrada = cidadeService.findById(enderecoCadastrado.getCidade().getId());
+            if (cidadeCadastrada != null) {
+                cidadeCadastrada.setNome(endereco.getCidade().getNome());
+                cidadeCadastrada.setEstado(endereco.getCidade().getEstado());
+                cidadeService.create(cidadeCadastrada);
+            }
+        } else {
+            cidadeCadastrada = cidadeService.create(new Cidade(null, endereco.getCidade().getNome(), endereco.getCidade().getEstado()));
         }
 
-        Endereco enderecoAtualizado = repository.save(enderecoSalvo);
-        return modelMapper.map(enderecoAtualizado, EnderecoResponseDTO.class);
-
+        endereco.setCidade(cidadeCadastrada);
+        return repository.save(endereco);
     }
 
     public void delete(Long id) {
-        getEndereco(id);
-        repository.deleteById(id);
+        Endereco enderecoCadastrado = repository.findById(id).orElseThrow(() -> new EnderecoNaoEncontradoException("Endereço não encontrado"));
+        repository.delete(enderecoCadastrado);
     }
 
-    public EnderecoResponseDTO findByCep(String cep) {
-        Endereco endereco = repository.findByCep(cep);
-        if (endereco != null) {
-            return modelMapper.map(endereco, EnderecoResponseDTO.class);
-        }
-        throw new EstadoNaoEncontradoException("Endereço não encontrado para o cep " + cep);
+    public Endereco toEntity(EnderecoRequestDTO enderecoRequestDTO) {
+        return modelMapper.map(enderecoRequestDTO, Endereco.class);
+    }
+
+    public Endereco toEntity(EnderecoUpdateRequestDTO enderecoUpdateRequestDTO) {
+        return modelMapper.map(enderecoUpdateRequestDTO, Endereco.class);
+    }
+
+    public EnderecoResponseDTO toResponse(Endereco endereco) {
+        return modelMapper.map(endereco, EnderecoResponseDTO.class);
+    }
+
+    public Endereco findByCep(String cep) {
+        return repository.findByCep(cep).orElseThrow(() -> new EnderecoNaoEncontradoException("Endereço não encontrado"));
     }
 }
