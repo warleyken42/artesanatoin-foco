@@ -41,6 +41,10 @@ public class CidadeService {
         return repository.findById(id).orElseThrow(() -> new CidadeNaoEncontradaException("Cidade não encontrada"));
     }
 
+    public Cidade findByNome(String nome) {
+        return repository.findByNome(nome);
+    }
+
     public Cidade update(Long id, Cidade cidade) {
         Cidade cidadeCadastrada = repository.findById(id).orElseThrow(() -> new CidadeNaoEncontradaException("Cidade não encontrado"));
         Estado estadoCadastrado = estadoService.findByNomeAndUf(cidade.getEstado().getNome(), cidade.getEstado().getUf());

@@ -8,48 +8,58 @@ import br.com.revistainfoco.revista.domain.entity.Cidade;
 import br.com.revistainfoco.revista.domain.entity.Endereco;
 import br.com.revistainfoco.revista.domain.entity.Estado;
 import br.com.revistainfoco.revista.errors.exceptions.AnuncianteNaoEncontradoException;
-import br.com.revistainfoco.revista.errors.exceptions.EnderecoNaoEncontradoException;
 import br.com.revistainfoco.revista.repository.AnuncianteRepository;
-import br.com.revistainfoco.revista.repository.CidadeRepository;
-import br.com.revistainfoco.revista.repository.EnderecoRepository;
-import br.com.revistainfoco.revista.repository.EstadoRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class AnuncianteService {
 
     private final AnuncianteRepository repository;
-    private final EnderecoRepository enderecoRepository;
-    private final CidadeRepository cidadeRepository;
-    private final EstadoRepository estadoRepository;
-    private final ModelMapper modelMapper;
     private final EnderecoService enderecoService;
+    private final CidadeService cidadeService;
+    private final EstadoService estadoService;
+    private final ModelMapper modelMapper;
 
     @Autowired
-    public AnuncianteService(AnuncianteRepository repository, EnderecoRepository enderecoRepository, CidadeRepository cidadeRepository, EstadoRepository estadoRepository, ModelMapper modelMapper, EnderecoService enderecoService) {
+    public AnuncianteService(AnuncianteRepository repository, EnderecoService enderecoService, CidadeService cidadeService, EstadoService estadoService, ModelMapper modelMapper) {
         this.repository = repository;
-        this.enderecoRepository = enderecoRepository;
-        this.cidadeRepository = cidadeRepository;
-        this.estadoRepository = estadoRepository;
-        this.modelMapper = modelMapper;
         this.enderecoService = enderecoService;
+        this.cidadeService = cidadeService;
+        this.estadoService = estadoService;
+        this.modelMapper = modelMapper;
     }
+
 
     @Transactional
     public Anunciante create(Anunciante anunciante) {
-        Endereco enderecoCadastrado;
-        if (anunciante.getEndereco() != null  && anunciante.getEndereco().getId() != null){
-            enderecoCadastrado = enderecoService.findById(anunciante.getEndereco().getId());
-        } else {
-            enderecoCadastrado = enderecoService.create(new Endereco(null, "Rua Cidade Lion", new Cidade(1L, "Guarulhos", new Estado(1L, "São Paulo", "SP")), "74185296", "184", "Apto: 32", "Jardim Anny"));
+        Endereco endereco = anunciante.getEndereco();
+        Cidade cidade = anunciante.getEndereco().getCidade();
+        Estado estado = anunciante.getEndereco().getCidade().getEstado();
+        
+        Estado estadoCadastrado = estadoService.findByNomeAndUf(estado.getNome(), estado.getUf());
+        Cidade cidadeCadastrada = cidadeService.findByNome(cidade.getNome());
+        boolean enderecoCadastrado = enderecoService.findAll().contains(endereco);
+
+        if (estadoCadastrado == null) {
+            estadoCadastrado = estadoService.create(estado);
+            anunciante.getEndereco().getCidade().setEstado(estadoCadastrado);
         }
-        anunciante.setEndereco(enderecoCadastrado);
+
+        if (cidadeCadastrada == null) {
+            cidadeCadastrada = cidadeService.create(cidade);
+            anunciante.getEndereco().setCidade(cidadeCadastrada);
+        }
+
+        if (!enderecoCadastrado) {
+            Endereco novoEndereco = enderecoService.create(endereco);
+            anunciante.setEndereco(novoEndereco);
+        }
+
         return repository.save(anunciante);
     }
 
@@ -62,30 +72,48 @@ public class AnuncianteService {
     }
 
     public Anunciante update(Long id, Anunciante anunciante) {
-        Anunciante anuncianteCadastrado = repository.findById(id).orElseThrow(() -> new AnuncianteNaoEncontradoException("Anunciante não encontrado"));
+        Anunciante anunciantesCadastrado = repository.findById(id).orElseThrow(() -> new AnuncianteNaoEncontradoException("Anunciante não encontrado"));
+        
+        Endereco endereco = anunciante.getEndereco();
+        Cidade cidade = anunciante.getEndereco().getCidade();
+        Estado estado = anunciante.getEndereco().getCidade().getEstado();
+        
+        Estado estadoCadastrado = estadoService.findByNomeAndUf(estado.getNome(), estado.getUf());
+        Cidade cidadeCadastrada = cidadeService.findByNome(cidade.getNome());
+        boolean enderecoCadastrado = enderecoService.findAll().contains(endereco);
 
-        Endereco enderecoCadastrado;
-
-        anuncianteCadastrado.setCnpj(anuncianteCadastrado.getCnpj());
-        anuncianteCadastrado.setRazaoSocial(anuncianteCadastrado.getRazaoSocial());
-        anuncianteCadastrado.setNomeFantasia(anuncianteCadastrado.getNomeFantasia());
-        anuncianteCadastrado.setEmail(anuncianteCadastrado.getEmail());
-        anuncianteCadastrado.setSite(anunciante.getSite());
-
-        if (anunciante.getEndereco() != null && anunciante.getEndereco().getId() != null){
-            enderecoCadastrado = enderecoService.findById(anuncianteCadastrado.getEndereco().getId());
-            if (enderecoCadastrado != null) {
-                enderecoCadastrado.setLogradouro(anunciante.getEndereco().getLogradouro());
-                enderecoCadastrado.setCep(anunciante.getEndereco().getCep());
-                enderecoCadastrado.setNumero(anunciante.getEndereco().getNumero());
-                enderecoCadastrado.setComplemento(anunciante.getEndereco().getComplemento());
-                enderecoCadastrado.setBairro(anunciante.getEndereco().getBairro());
-            }
+        if (estadoCadastrado == null) {
+            estadoCadastrado = estadoService.create(estado);
+            anunciante.getEndereco().getCidade().setEstado(estadoCadastrado);
         } else {
-            enderecoCadastrado = enderecoService.create(new Endereco(null, anunciante.getEndereco().getLogradouro(), anunciante.getEndereco().getCidade(), anunciante.getEndereco().getCep(), anunciante.getEndereco().getNumero(), anunciante.getEndereco().getComplemento(), anunciante.getEndereco().getBairro()));
+            estadoCadastrado.setNome(estado.getNome());
+            estadoCadastrado.setUf(estado.getUf());
+            Estado estadoAtualizado = estadoService.update(estadoCadastrado.getId(), estadoCadastrado);
+            anunciante.getEndereco().getCidade().setEstado(estadoAtualizado);
         }
 
-        anunciante.setEndereco(enderecoCadastrado);
+        if (cidadeCadastrada == null) {
+            cidadeCadastrada = cidadeService.create(cidade);
+            anunciante.getEndereco().setCidade(cidadeCadastrada);
+        } else {
+            cidadeCadastrada.setNome(cidade.getNome());
+            Cidade cidadeAtualizada = cidadeService.update(cidadeCadastrada.getId(), cidade);
+            anunciantesCadastrado.getEndereco().setCidade(cidadeAtualizada);
+        }
+
+        if (!enderecoCadastrado) {
+            Endereco novoEndereco = enderecoService.create(endereco);
+            anunciante.setEndereco(novoEndereco);
+        } else {
+            Endereco enderecoParaAtualizar = anunciantesCadastrado.getEndereco();
+            enderecoParaAtualizar.setLogradouro(endereco.getLogradouro());
+            enderecoParaAtualizar.setCep(endereco.getCep());
+            enderecoParaAtualizar.setNumero(endereco.getNumero());
+            enderecoParaAtualizar.setComplemento(endereco.getComplemento());
+            enderecoParaAtualizar.setBairro(endereco.getBairro());
+            Endereco enderecoAtualizado = enderecoService.update(enderecoParaAtualizar.getId(), enderecoParaAtualizar);
+            anunciante.setEndereco(enderecoAtualizado);
+        }
         return repository.save(anunciante);
     }
 
