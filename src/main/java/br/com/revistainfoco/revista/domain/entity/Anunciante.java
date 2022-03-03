@@ -113,4 +113,16 @@ public class Anunciante implements Serializable {
     public int hashCode() {
         return Objects.hash(id);
     }
+
+    @Override
+    public String toString() {
+        return "Anunciante{" +
+                "id=" + id +
+                ", cnpj='" + cnpj + '\'' +
+                ", razaoSocial='" + razaoSocial + '\'' +
+                ", nomeFantasia='" + nomeFantasia + '\'' +
+                ", email='" + email + '\'' +
+                ", site='" + site + '\'' +
+                '}';
+    }
 }
