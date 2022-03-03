@@ -30,6 +30,13 @@ public class CidadeService {
     public Cidade create(Cidade cidade) {
         Estado estadoCadastrado = estadoService.findByNomeAndUf(cidade.getEstado().getNome(), cidade.getEstado().getUf());
         cidade.setEstado(estadoCadastrado);
+
+        Cidade cidadeCadastrada = repository.findByNome(cidade.getNome());
+
+        if (cidadeCadastrada != null) {
+            return cidadeCadastrada;
+        }
+        
         return repository.save(cidade);
     }
 

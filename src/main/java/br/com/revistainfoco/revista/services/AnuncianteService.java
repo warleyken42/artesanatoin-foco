@@ -73,11 +73,16 @@ public class AnuncianteService {
 
     public Anunciante update(Long id, Anunciante anunciante) {
         Anunciante anunciantesCadastrado = repository.findById(id).orElseThrow(() -> new AnuncianteNaoEncontradoException("Anunciante não encontrado"));
-        
+
+        if (anunciantesCadastrado != null) {
+            anunciante.setId(id);
+        }
+
         Endereco endereco = anunciante.getEndereco();
         Cidade cidade = anunciante.getEndereco().getCidade();
         Estado estado = anunciante.getEndereco().getCidade().getEstado();
-        
+
+
         Estado estadoCadastrado = estadoService.findByNomeAndUf(estado.getNome(), estado.getUf());
         Cidade cidadeCadastrada = cidadeService.findByNome(cidade.getNome());
         boolean enderecoCadastrado = enderecoService.findAll().contains(endereco);
@@ -105,13 +110,13 @@ public class AnuncianteService {
             Endereco novoEndereco = enderecoService.create(endereco);
             anunciante.setEndereco(novoEndereco);
         } else {
-            Endereco enderecoParaAtualizar = anunciantesCadastrado.getEndereco();
-            enderecoParaAtualizar.setLogradouro(endereco.getLogradouro());
-            enderecoParaAtualizar.setCep(endereco.getCep());
-            enderecoParaAtualizar.setNumero(endereco.getNumero());
-            enderecoParaAtualizar.setComplemento(endereco.getComplemento());
-            enderecoParaAtualizar.setBairro(endereco.getBairro());
-            Endereco enderecoAtualizado = enderecoService.update(enderecoParaAtualizar.getId(), enderecoParaAtualizar);
+            Endereco enderecoAtual = anunciantesCadastrado.getEndereco();
+            enderecoAtual.setLogradouro(endereco.getLogradouro());
+            enderecoAtual.setCep(endereco.getCep());
+            enderecoAtual.setNumero(endereco.getNumero());
+            enderecoAtual.setComplemento(endereco.getComplemento());
+            enderecoAtual.setBairro(endereco.getBairro());
+            Endereco enderecoAtualizado = enderecoService.update(enderecoAtual.getId(), enderecoAtual);
             anunciante.setEndereco(enderecoAtualizado);
         }
         return repository.save(anunciante);
