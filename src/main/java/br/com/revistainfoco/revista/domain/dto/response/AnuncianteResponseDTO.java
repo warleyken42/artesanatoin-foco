@@ -34,4 +34,7 @@ public class AnuncianteResponseDTO implements Serializable {
 
     @Schema(description = "Site do anunciante", example = "www.revista_in_foco.com")
     private String site;
+
+    @Schema(description = "Contato do anunciante")
+    private ContatoResponseDTO contato;
 }

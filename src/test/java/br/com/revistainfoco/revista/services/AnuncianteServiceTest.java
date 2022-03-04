@@ -1,17 +1,11 @@
 package br.com.revistainfoco.revista.services;
 
 import br.com.revistainfoco.revista.domain.dto.request.*;
-import br.com.revistainfoco.revista.domain.dto.response.AnuncianteResponseDTO;
-import br.com.revistainfoco.revista.domain.dto.response.CidadeResponseDTO;
-import br.com.revistainfoco.revista.domain.dto.response.EnderecoResponseDTO;
-import br.com.revistainfoco.revista.domain.dto.response.EstadoResponseDTO;
-import br.com.revistainfoco.revista.domain.entity.Anunciante;
-import br.com.revistainfoco.revista.domain.entity.Cidade;
-import br.com.revistainfoco.revista.domain.entity.Endereco;
-import br.com.revistainfoco.revista.domain.entity.Estado;
+import br.com.revistainfoco.revista.domain.dto.response.*;
+import br.com.revistainfoco.revista.domain.entity.*;
 import br.com.revistainfoco.revista.errors.exceptions.AnuncianteNaoEncontradoException;
-import br.com.revistainfoco.revista.errors.exceptions.EnderecoNaoEncontradoException;
 import br.com.revistainfoco.revista.repository.AnuncianteRepository;
+import br.com.revistainfoco.revista.repository.ContatoRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,7 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +23,7 @@ import java.util.Optional;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,7 +36,16 @@ public class AnuncianteServiceTest {
     private EnderecoService enderecoService;
 
     @Mock
+    private EstadoService estadoService;
+
+    @Mock
+    private CidadeService cidadeService;
+
+    @Mock
     private ModelMapper modelMapper;
+
+    @Mock
+    private ContatoService contatoService;
 
     @InjectMocks
     private AnuncianteService anuncianteService;
@@ -56,14 +59,22 @@ public class AnuncianteServiceTest {
     private CidadeRequestDTO cidadeRequestDTO;
     private EnderecoRequestDTO enderecoRequestDTO;
     private AnuncianteRequestDTO anuncianteRequestDTO;
+    private Contato contato;
+    private ContatoResponseDTO contatoResponseDTO;
+    private Estado estadoCadastrado;
+    private Cidade cidadeCadastrada;
 
     @BeforeEach
     void beaforeEach() {
+        estadoCadastrado = new Estado(1L, "São Paulo", "SP");
+        cidadeCadastrada = new Cidade(1L, "Guarulhos", estadoCadastrado);
+        contatoResponseDTO = new ContatoResponseDTO(1L, "Ana Maria", "Braga", "112233445566", "ana@mail.com");
+        contato = new Contato(1L, "Ana Maria", "Braga", "112233445566", "ana@mail.com");
         estado = new Estado(1L, "São Paulo", "SP");
         cidade = new Cidade(null, "Jaguaribe", estado);
         endereco = new Endereco(1L, "Rua Cidade Lion", cidade, "74185296", "184", "Apto: 32", "Jardim Anny");
-        anunciante = new Anunciante(1L, "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", endereco, "warley-ft@hotmail.com", "www.revista_in_foco.com");
-        anuncianteCadastrado = new Anunciante(1L, "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", endereco, "warley-ft@hotmail.com", "www.revista_in_foco.com");
+        anunciante = new Anunciante(1L, "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", endereco, "warley-ft@hotmail.com", "www.revista_in_foco.com", contato);
+        anuncianteCadastrado = new Anunciante(1L, "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", endereco, "warley-ft@hotmail.com", "www.revista_in_foco.com", contato);
         enderecoRequestDTO = new EnderecoRequestDTO("Rua Cidade Lion", cidadeRequestDTO, "74185296", "184", "Apto: 32", "Jardim Anny");
         cidadeRequestDTO = new CidadeRequestDTO("Jaguaribe", estadoRequestDTO);
         estadoRequestDTO = new EstadoRequestDTO("São Paulo", "SP");
@@ -73,9 +84,9 @@ public class AnuncianteServiceTest {
     @DisplayName(value = "Dado uma solicitação para ler todos os anunciantes cadastrados então deve retornar todos os anunciantes cadastrados")
     void DadoUmaSolicitacaoParaLerTodosOsAnunciantesCadastradosEntaoDeveRetornarTodosOsAnunciantesCadastrados() {
         List<Anunciante> anunciantes = asList(
-                new Anunciante(1L, "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", endereco, "warley-ft@hotmail.com", "www.revista_in_foco.com"),
-                new Anunciante(2L, "87571657111197", "Lucas Caua De Figueiredo", "REVISTA_IN_FOCO2", endereco, "lucas-ft@hotmail.com", "www.revista_in_foco2.com"),
-                new Anunciante(3L, "87571657222197", "Jorge Rabello", "REVISTA_IN_FOCO3", endereco, "jorge-ft@hotmail.com", "www.revista_in_foco3.com")
+                new Anunciante(1L, "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", endereco, "warley-ft@hotmail.com", "www.revista_in_foco.com", contato),
+                new Anunciante(2L, "87571657111197", "Lucas Caua De Figueiredo", "REVISTA_IN_FOCO2", endereco, "lucas-ft@hotmail.com", "www.revista_in_foco2.com", contato),
+                new Anunciante(3L, "87571657222197", "Jorge Rabello", "REVISTA_IN_FOCO3", endereco, "jorge-ft@hotmail.com", "www.revista_in_foco3.com", contato)
         );
 
         when(anuncianteRepository.findAll()).thenReturn(anunciantes);
@@ -110,15 +121,15 @@ public class AnuncianteServiceTest {
     @Test
     @DisplayName(value = "Dado um anunciante quando tentar cadastrar então deve retornar os dados do anunciante cadastrado")
     void DadoUmAnuncianteQuandoTentarCadastrarEntaoDeveRetornarOsDadosDoAnuncianteCadastrado(){
-        Estado estadoCadastrado = new Estado(1L, "São Paulo", "SP");
-        Cidade cidadeCadastrada = new Cidade(1L, "Guarulhos", estadoCadastrado);
+
         Endereco enderecoCadastrado = new Endereco(1L, "Rua Cidade Lion", cidadeCadastrada, "07094190", "184", "Apto 32", "Jardim Anny");
-        Anunciante anunciante = new Anunciante(null, "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", enderecoCadastrado, "warley-ft@hotmail.com", "www.revista_in_foco.com");
-        Anunciante anuncianteCriado = new Anunciante(1L, "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", enderecoCadastrado, "warley-ft@hotmail.com", "www.revista_in_foco.com");
+        Anunciante anunciante = new Anunciante(null, "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", enderecoCadastrado, "warley-ft@hotmail.com", "www.revista_in_foco.com", contato);
+        Anunciante anuncianteCriado = new Anunciante(1L, "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", enderecoCadastrado, "warley-ft@hotmail.com", "www.revista_in_foco.com", contato);
 
-
+        when(estadoService.findByNomeAndUf("São Paulo", "SP")).thenReturn(estadoCadastrado);
+        when(cidadeService.findByNome(any())).thenReturn(cidadeCadastrada);
         when(anuncianteRepository.save(anunciante)).thenReturn(anuncianteCriado);
-
+        when(contatoService.findByCelular(any())).thenReturn(contato);
         anuncianteCadastrado = anuncianteService.create(anunciante);
 
 
@@ -137,8 +148,12 @@ public class AnuncianteServiceTest {
     @DisplayName(value = "Dado um anunciante para atualizar quando tentar atualizar os dados então deve retornar o anunciante com os dados atualizados")
     void DadoUmAnuncianteParaAtualizarQuandoTentarAtualizarOsDadosEntaoDeveRetornarOAnuncianteComOsDadosAtualizados() {
 
-        Anunciante anuncianteComNovosDados = new Anunciante(1L,  "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", endereco, "warley-ft@hotmail.com", "www.revista_in_foco.com");
+        Anunciante anuncianteComNovosDados = new Anunciante(1L,  "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", endereco, "warley-ft@hotmail.com", "www.revista_in_foco.com", contato);
 
+
+
+        when(estadoService.findByNomeAndUf(any(), any())).thenReturn(estadoCadastrado);
+        when(cidadeService.findByNome(any())).thenReturn(cidadeCadastrada);
         when(anuncianteRepository.findById(1L)).thenReturn(Optional.of(anuncianteCadastrado));
         when(anuncianteRepository.save(anuncianteCadastrado)).thenReturn(anuncianteComNovosDados);
 
@@ -236,7 +251,7 @@ public class AnuncianteServiceTest {
         EstadoResponseDTO estadoResponseDTO = new EstadoResponseDTO(1L, "Ceará", "CE");
         CidadeResponseDTO cidadeResponseDTO = new CidadeResponseDTO(1L, "Jaguaribe", estadoResponseDTO);
         EnderecoResponseDTO enderecoResponseDTO = new EnderecoResponseDTO(1L, "Rua Cidade Lion", cidadeResponseDTO, "74185296", "184", "Apto: 32", "Jardim Anny");
-        AnuncianteResponseDTO anuncianteResponseDTO = new AnuncianteResponseDTO(1L,  "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", enderecoResponseDTO, "warley-ft@hotmail.com", "www.revista_in_foco.com");
+        AnuncianteResponseDTO anuncianteResponseDTO = new AnuncianteResponseDTO(1L,  "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", enderecoResponseDTO, "warley-ft@hotmail.com", "www.revista_in_foco.com", contatoResponseDTO);
 
         when(modelMapper.map(anunciante, AnuncianteResponseDTO.class)).thenReturn(anuncianteResponseDTO);
 

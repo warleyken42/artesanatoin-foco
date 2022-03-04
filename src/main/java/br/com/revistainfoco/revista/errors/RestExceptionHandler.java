@@ -49,6 +49,12 @@ public class RestExceptionHandler {
         return new ResponseEntity<>(errorDetail, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(ContatoNaoEncontradoException.class)
+    public ResponseEntity<?> handleContatoNaoEncontradoException(ContatoNaoEncontradoException contatoNaoEncontradoException) {
+        ErrorDetail errorDetail = ErrorDetail.builder().mensagem(contatoNaoEncontradoException.getMessage()).build();
+        return new ResponseEntity<>(errorDetail, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException dataIntegrityViolationException) {
         String message = dataIntegrityViolationException.getMostSpecificCause().getMessage().substring(dataIntegrityViolationException.getMostSpecificCause().getMessage().indexOf("Detalhe: "));
@@ -56,4 +62,5 @@ public class RestExceptionHandler {
         log.error(dataIntegrityViolationException.getMostSpecificCause().getMessage());
         return new ResponseEntity<>(errorDetail, HttpStatus.CONFLICT);
     }
+
 }

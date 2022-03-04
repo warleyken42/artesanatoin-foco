@@ -3,10 +3,7 @@ package br.com.revistainfoco.revista.services;
 import br.com.revistainfoco.revista.domain.dto.request.AnuncianteRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.request.AnuncianteUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.AnuncianteResponseDTO;
-import br.com.revistainfoco.revista.domain.entity.Anunciante;
-import br.com.revistainfoco.revista.domain.entity.Cidade;
-import br.com.revistainfoco.revista.domain.entity.Endereco;
-import br.com.revistainfoco.revista.domain.entity.Estado;
+import br.com.revistainfoco.revista.domain.entity.*;
 import br.com.revistainfoco.revista.errors.exceptions.AnuncianteJaCadastradoException;
 import br.com.revistainfoco.revista.errors.exceptions.AnuncianteNaoEncontradoException;
 import br.com.revistainfoco.revista.repository.AnuncianteRepository;
@@ -25,14 +22,16 @@ public class AnuncianteService {
     private final EnderecoService enderecoService;
     private final CidadeService cidadeService;
     private final EstadoService estadoService;
+    private final ContatoService contatoService;
     private final ModelMapper modelMapper;
 
     @Autowired
-    public AnuncianteService(AnuncianteRepository repository, EnderecoService enderecoService, CidadeService cidadeService, EstadoService estadoService, ModelMapper modelMapper) {
+    public AnuncianteService(AnuncianteRepository repository, EnderecoService enderecoService, CidadeService cidadeService, EstadoService estadoService, ContatoService contatoService, ModelMapper modelMapper) {
         this.repository = repository;
         this.enderecoService = enderecoService;
         this.cidadeService = cidadeService;
         this.estadoService = estadoService;
+        this.contatoService = contatoService;
         this.modelMapper = modelMapper;
     }
 
@@ -66,6 +65,14 @@ public class AnuncianteService {
             anunciante.setEndereco(novoEndereco);
         }
 
+        Contato contatoCadastrado = contatoService.findByCelular(anunciante.getContato().getCelular());
+
+        if (contatoCadastrado == null) {
+            Contato contato = contatoService.create(anunciante.getContato());
+            anunciante.setContato(contato);
+        } else {
+            anunciante.setContato(contatoCadastrado);
+        }
         return repository.save(anunciante);
     }
 
@@ -87,11 +94,24 @@ public class AnuncianteService {
         Endereco endereco = anunciante.getEndereco();
         Cidade cidade = anunciante.getEndereco().getCidade();
         Estado estado = anunciante.getEndereco().getCidade().getEstado();
+        Contato contato = anunciante.getContato();
 
 
         Estado estadoCadastrado = estadoService.findByNomeAndUf(estado.getNome(), estado.getUf());
         Cidade cidadeCadastrada = cidadeService.findByNome(cidade.getNome());
+        Contato contatoCadastrado = contatoService.findByCelular(contato.getCelular());
         boolean enderecoCadastrado = enderecoService.findAll().contains(endereco);
+
+
+        if (contatoCadastrado == null) {
+            contatoService.create(contato);
+        } else {
+            contatoCadastrado.setNome(contato.getNome());
+            contatoCadastrado.setSobrenome(contato.getSobrenome());
+            contatoCadastrado.setCelular(contato.getCelular());
+            contatoCadastrado.setEmail(contato.getEmail());
+            anunciante.setContato(contatoCadastrado);
+        }
 
         if (estadoCadastrado == null) {
             estadoCadastrado = estadoService.create(estado);
@@ -109,13 +129,16 @@ public class AnuncianteService {
         } else {
             cidadeCadastrada.setNome(cidade.getNome());
             Cidade cidadeAtualizada = cidadeService.update(cidadeCadastrada.getId(), cidade);
+            assert anunciantesCadastrado != null;
             anunciantesCadastrado.getEndereco().setCidade(cidadeAtualizada);
         }
+
 
         if (!enderecoCadastrado) {
             Endereco novoEndereco = enderecoService.create(endereco);
             anunciante.setEndereco(novoEndereco);
         } else {
+            assert anunciantesCadastrado != null;
             Endereco enderecoAtual = anunciantesCadastrado.getEndereco();
             enderecoAtual.setLogradouro(endereco.getLogradouro());
             enderecoAtual.setCep(endereco.getCep());

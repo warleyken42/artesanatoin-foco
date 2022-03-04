@@ -18,10 +18,10 @@ public class Contato implements Serializable {
     @Column(name = "sobrenome", length = 60, columnDefinition = "VARCHAR(60)", nullable = false)
     private String sobrenome;
 
-    @Column(name = "celular", length = 12, columnDefinition = "VARCHAR(12)", nullable = false)
+    @Column(name = "celular", length = 12, columnDefinition = "VARCHAR(12)", nullable = false, unique = true)
     private String celular;
 
-    @Column(name = "email", length = 60, columnDefinition = "VARCHAR(60)", nullable = false)
+    @Column(name = "email", length = 60, columnDefinition = "VARCHAR(60)", unique = true)
     private String email;
 
     public Contato() {

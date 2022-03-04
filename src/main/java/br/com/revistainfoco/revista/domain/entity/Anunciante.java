@@ -26,16 +26,20 @@ public class Anunciante implements Serializable {
     @JoinColumn(name = "endereco_id")
     private Endereco endereco;
 
-    @Column(name = "email", length = 60, columnDefinition = "VARCHAR(60)", nullable = false, unique = true)
+    @Column(name = "email", length = 60, columnDefinition = "VARCHAR(60)", unique = true)
     private String email;
 
-    @Column(name = "site", length = 60, columnDefinition = "VARCHAR(60)", nullable = false)
+    @Column(name = "site", length = 60, columnDefinition = "VARCHAR(60)")
     private String site;
+
+    @OneToOne
+    @JoinColumn(name = "contato_id")
+    private Contato contato;
 
     public Anunciante() {
     }
 
-    public Anunciante(Long id, String cnpj, String razaoSocial, String nomeFantasia, Endereco endereco, String email, String site) {
+    public Anunciante(Long id, String cnpj, String razaoSocial, String nomeFantasia, Endereco endereco, String email, String site, Contato contato) {
         this.id = id;
         this.cnpj = cnpj;
         this.razaoSocial = razaoSocial;
@@ -43,6 +47,7 @@ public class Anunciante implements Serializable {
         this.endereco = endereco;
         this.email = email;
         this.site = site;
+        this.contato = contato;
     }
 
     public Long getId() {
@@ -99,6 +104,14 @@ public class Anunciante implements Serializable {
 
     public void setSite(String site) {
         this.site = site;
+    }
+
+    public Contato getContato() {
+        return contato;
+    }
+
+    public void setContato(Contato contato) {
+        this.contato = contato;
     }
 
     @Override
