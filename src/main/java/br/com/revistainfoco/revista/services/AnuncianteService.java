@@ -7,6 +7,7 @@ import br.com.revistainfoco.revista.domain.entity.Anunciante;
 import br.com.revistainfoco.revista.domain.entity.Cidade;
 import br.com.revistainfoco.revista.domain.entity.Endereco;
 import br.com.revistainfoco.revista.domain.entity.Estado;
+import br.com.revistainfoco.revista.errors.exceptions.AnuncianteJaCadastradoException;
 import br.com.revistainfoco.revista.errors.exceptions.AnuncianteNaoEncontradoException;
 import br.com.revistainfoco.revista.repository.AnuncianteRepository;
 import org.modelmapper.ModelMapper;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AnuncianteService {
@@ -37,6 +39,10 @@ public class AnuncianteService {
 
     @Transactional
     public Anunciante create(Anunciante anunciante) {
+        Optional<Anunciante> anuncianteCadastrado = repository.findBycnpj(anunciante.getCnpj());
+        if (anuncianteCadastrado.isPresent()) {
+            throw new AnuncianteJaCadastradoException("Anunciante já cadastrado");
+        }
         Endereco endereco = anunciante.getEndereco();
         Cidade cidade = anunciante.getEndereco().getCidade();
         Estado estado = anunciante.getEndereco().getCidade().getEstado();

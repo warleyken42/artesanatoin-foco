@@ -8,4 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface AnuncianteRepository extends JpaRepository<Anunciante, Long> {
+    Optional<Anunciante> findBycnpj(String cnpj);
 }

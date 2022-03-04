@@ -1,9 +1,6 @@
 package br.com.revistainfoco.revista.errors;
 
-import br.com.revistainfoco.revista.errors.exceptions.CidadeJaCadastradaException;
-import br.com.revistainfoco.revista.errors.exceptions.CidadeNaoEncontradaException;
-import br.com.revistainfoco.revista.errors.exceptions.EstadoJaCadastradoException;
-import br.com.revistainfoco.revista.errors.exceptions.EstadoNaoEncontradoException;
+import br.com.revistainfoco.revista.errors.exceptions.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -44,6 +41,12 @@ public class RestExceptionHandler {
     public ResponseEntity<?> handleCidadeNaoEncontradoException(CidadeNaoEncontradaException cidadeNaoEncontradoException) {
         ErrorDetail errorDetail = ErrorDetail.builder().mensagem(cidadeNaoEncontradoException.getMessage()).build();
         return new ResponseEntity<>(errorDetail, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(AnuncianteJaCadastradoException.class)
+    public ResponseEntity<?> handleAnuncianteJaCadastradoException(AnuncianteJaCadastradoException anuncianteJaCadastradoException) {
+        ErrorDetail errorDetail = ErrorDetail.builder().mensagem(anuncianteJaCadastradoException.getMessage()).build();
+        return new ResponseEntity<>(errorDetail, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)

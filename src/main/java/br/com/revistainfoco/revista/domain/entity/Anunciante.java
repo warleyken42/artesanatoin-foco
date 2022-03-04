@@ -13,7 +13,7 @@ public class Anunciante implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "cnpj", length = 16, columnDefinition = "VARCHAR(16)", nullable = false)
+    @Column(name = "cnpj", length = 16, columnDefinition = "VARCHAR(16)", nullable = false, unique = true)
     private String cnpj;
 
     @Column(name = "razaoSocial", length = 50, columnDefinition = "VARCHAR(50)", nullable = false)
@@ -26,7 +26,7 @@ public class Anunciante implements Serializable {
     @JoinColumn(name = "endereco_id")
     private Endereco endereco;
 
-    @Column(name = "email", length = 60, columnDefinition = "VARCHAR(60)", nullable = false)
+    @Column(name = "email", length = 60, columnDefinition = "VARCHAR(60)", nullable = false, unique = true)
     private String email;
 
     @Column(name = "site", length = 60, columnDefinition = "VARCHAR(60)", nullable = false)
