@@ -36,7 +36,7 @@ public class CidadeService {
         if (cidadeCadastrada != null) {
             return cidadeCadastrada;
         }
-        
+
         return repository.save(cidade);
     }
 

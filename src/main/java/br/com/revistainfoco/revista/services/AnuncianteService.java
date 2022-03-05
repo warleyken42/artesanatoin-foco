@@ -45,7 +45,7 @@ public class AnuncianteService {
         Endereco endereco = anunciante.getEndereco();
         Cidade cidade = anunciante.getEndereco().getCidade();
         Estado estado = anunciante.getEndereco().getCidade().getEstado();
-        
+
         Estado estadoCadastrado = estadoService.findByNomeAndUf(estado.getNome(), estado.getUf());
         Cidade cidadeCadastrada = cidadeService.findByNome(cidade.getNome());
         boolean enderecoCadastrado = enderecoService.findAll().contains(endereco);
