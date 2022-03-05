@@ -5,7 +5,6 @@ import br.com.revistainfoco.revista.domain.dto.response.*;
 import br.com.revistainfoco.revista.domain.entity.*;
 import br.com.revistainfoco.revista.errors.exceptions.AnuncianteNaoEncontradoException;
 import br.com.revistainfoco.revista.repository.AnuncianteRepository;
-import br.com.revistainfoco.revista.repository.ContatoRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -101,7 +100,7 @@ public class AnuncianteServiceTest {
 
     @Test
     @DisplayName(value = "Dado um id quando tentar ler um anunciante pelo id então deve retornar o anunciante")
-    void DadoUmIdQuandoTentarLerUmAnunciantePeloIdEntaoDeveRetornarOAnunciante(){
+    void DadoUmIdQuandoTentarLerUmAnunciantePeloIdEntaoDeveRetornarOAnunciante() {
 
         when(anuncianteRepository.findById(1L)).thenReturn(Optional.of(anuncianteCadastrado));
 
@@ -120,7 +119,7 @@ public class AnuncianteServiceTest {
 
     @Test
     @DisplayName(value = "Dado um anunciante quando tentar cadastrar então deve retornar os dados do anunciante cadastrado")
-    void DadoUmAnuncianteQuandoTentarCadastrarEntaoDeveRetornarOsDadosDoAnuncianteCadastrado(){
+    void DadoUmAnuncianteQuandoTentarCadastrarEntaoDeveRetornarOsDadosDoAnuncianteCadastrado() {
 
         Endereco enderecoCadastrado = new Endereco(1L, "Rua Cidade Lion", cidadeCadastrada, "07094190", "184", "Apto 32", "Jardim Anny");
         Anunciante anunciante = new Anunciante(null, "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", enderecoCadastrado, "warley-ft@hotmail.com", "www.revista_in_foco.com", contato);
@@ -148,8 +147,7 @@ public class AnuncianteServiceTest {
     @DisplayName(value = "Dado um anunciante para atualizar quando tentar atualizar os dados então deve retornar o anunciante com os dados atualizados")
     void DadoUmAnuncianteParaAtualizarQuandoTentarAtualizarOsDadosEntaoDeveRetornarOAnuncianteComOsDadosAtualizados() {
 
-        Anunciante anuncianteComNovosDados = new Anunciante(1L,  "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", endereco, "warley-ft@hotmail.com", "www.revista_in_foco.com", contato);
-
+        Anunciante anuncianteComNovosDados = new Anunciante(1L, "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", endereco, "warley-ft@hotmail.com", "www.revista_in_foco.com", contato);
 
 
         when(estadoService.findByNomeAndUf(any(), any())).thenReturn(estadoCadastrado);
@@ -229,7 +227,7 @@ public class AnuncianteServiceTest {
         EstadoUpdateRequestDTO estadoUpdateRequestDTO = new EstadoUpdateRequestDTO(1L, "Ceará", "CE");
         CidadeUpdateRequestDTO cidadeUpdateRequestDTO = new CidadeUpdateRequestDTO(1L, "Jaguaribe", estadoUpdateRequestDTO);
         EnderecoUpdateRequestDTO enderecoUpdateRequestDTO = new EnderecoUpdateRequestDTO(1L, "Rua Cidade Lion", cidadeUpdateRequestDTO, "74185296", "184", "Apto: 32", "Jardim Anny");
-        AnuncianteUpdateRequestDTO anuncianteUpdateRequestDTO = new AnuncianteUpdateRequestDTO(1L,  "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", enderecoUpdateRequestDTO, "warley-ft@hotmail.com", "www.revista_in_foco.com");
+        AnuncianteUpdateRequestDTO anuncianteUpdateRequestDTO = new AnuncianteUpdateRequestDTO(1L, "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", enderecoUpdateRequestDTO, "warley-ft@hotmail.com", "www.revista_in_foco.com");
 
         when(modelMapper.map(anuncianteUpdateRequestDTO, Anunciante.class)).thenReturn(anuncianteCadastrado);
 
@@ -251,7 +249,7 @@ public class AnuncianteServiceTest {
         EstadoResponseDTO estadoResponseDTO = new EstadoResponseDTO(1L, "Ceará", "CE");
         CidadeResponseDTO cidadeResponseDTO = new CidadeResponseDTO(1L, "Jaguaribe", estadoResponseDTO);
         EnderecoResponseDTO enderecoResponseDTO = new EnderecoResponseDTO(1L, "Rua Cidade Lion", cidadeResponseDTO, "74185296", "184", "Apto: 32", "Jardim Anny");
-        AnuncianteResponseDTO anuncianteResponseDTO = new AnuncianteResponseDTO(1L,  "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", enderecoResponseDTO, "warley-ft@hotmail.com", "www.revista_in_foco.com", contatoResponseDTO);
+        AnuncianteResponseDTO anuncianteResponseDTO = new AnuncianteResponseDTO(1L, "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", enderecoResponseDTO, "warley-ft@hotmail.com", "www.revista_in_foco.com", contatoResponseDTO);
 
         when(modelMapper.map(anunciante, AnuncianteResponseDTO.class)).thenReturn(anuncianteResponseDTO);
 

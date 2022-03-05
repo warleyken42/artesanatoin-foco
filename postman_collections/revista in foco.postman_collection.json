@@ -1,0 +1,649 @@
+{
+	"info": {
+		"_postman_id": "5fcc66ae-3bc3-4620-aef7-d883a2a070ca",
+		"name": "revista in foco",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "ESTADOS",
+			"item": [
+				{
+					"name": "Cadastra um estado",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"São Paulo\",\n    \"uf\": \"SP\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{estados_root_path}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{estados_root_path}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retorna todos os estados cadastrados",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{estados_root_path}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{estados_root_path}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retorna um estado pelo seu id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{estados_root_path}}/{{estado_id}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{estados_root_path}}",
+								"{{estado_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Atualiza os dados de um estado cadastrado",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 24,\n    \"nome\": \"Acre\",\n    \"uf\": \"AC\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{estados_root_path}}/{{estado_id}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{estados_root_path}}",
+								"{{estado_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Excluí um estado cadastrado",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{estados_root_path}}/{{estado_id}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{estados_root_path}}",
+								"{{estado_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "CIDADES",
+			"item": [
+				{
+					"name": "Cadastra uma nova cidade",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"ABCD\",\n    \"estado\": {\n        \"nome\": \"São Paulo\",\n        \"uf\": \"SP\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{cidades_root_path}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{cidades_root_path}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retorna todas as cidades cadastradas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{cidades_root_path}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{cidades_root_path}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retorna uma cidade pelo seu id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{cidades_root_path}}/{{cidade_id}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{cidades_root_path}}",
+								"{{cidade_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Atualiza os dados de uma cidade cadastrada",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 8,\n    \"nome\": \"Lins 34\",\n    \"estado\": {\n        \"nome\": \"Rio de Janeiro\",\n        \"uf\": \"RJ\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{cidades_root_path}}/{{cidade_id}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{cidades_root_path}}",
+								"{{cidade_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Excluí uma cidade cadastrada",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{cidades_root_path}}/{{cidade_id}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{cidades_root_path}}",
+								"{{cidade_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ENDEREÇOS",
+			"item": [
+				{
+					"name": "Cadastra um novo endereço",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"logradouro\": \"Rua Cidade Lion\",\n    \"cidade\": {\n        \"nome\": \"Lins\",\n        \"estado\": {\n            \"id\": 24,\n            \"nome\": \"São Paulo\",\n            \"uf\": \"SP\"\n        }\n    },\n    \"cep\": \"07094190\",\n    \"numero\": \"184\",\n    \"complemento\": \"Apto 32\",\n    \"bairro\": \"Jardim Anny\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{enderecos_root_path}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{enderecos_root_path}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retorna todos os endereços cadastrados",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{enderecos_root_path}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{enderecos_root_path}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retorna um endereço pelo id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{enderecos_root_path}}/{{endereco_id}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{enderecos_root_path}}",
+								"{{endereco_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retorna um endereço pelo cep",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{enderecos_root_path}}/findByCep/{{cep}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{enderecos_root_path}}",
+								"findByCep",
+								"{{cep}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Atualiza um endereço atualizando uma cidade na uf",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"logradouro\": \"Rua Cidade Lion 322\",\n    \"cidade\": {\n        \"id\": 1,\n        \"nome\": \"Guarulhos\",\n        \"estado\": {\n            \"id\": 18,\n            \"nome\": \"São Paulo\",\n            \"uf\": \"SP\"\n        }\n    },\n    \"cep\": \"07094192\",\n    \"numero\": \"184\",\n    \"complemento\": \"Apto 32\",\n    \"bairro\": \"Jardim Anny \"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{enderecos_root_path}}/{{endereco_id}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{enderecos_root_path}}",
+								"{{endereco_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Atualiza um endereço criando uma cidade na uf",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"logradouro\": \"Rua Cidade Lion 2\",\n    \"cidade\": {\n        \"nome\": \"XTP\",\n        \"estado\": {\n            \"id\": 24,\n            \"nome\": \"São Paulo\",\n            \"uf\": \"SP\"\n        }\n    },\n    \"cep\": \"07094192\",\n    \"numero\": \"182\",\n    \"complemento\": \"Apto 322\",\n    \"bairro\": \"Jardim Anny 2\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{enderecos_root_path}}/{{endereco_id}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{enderecos_root_path}}",
+								"{{endereco_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deleta permanentemente um endereço cadastrado",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{enderecos_root_path}}/{{endereco_id}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{enderecos_root_path}}",
+								"{{endereco_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ANUNCIANTES",
+			"item": [
+				{
+					"name": "Cadastra um novo anunciante na base de dados",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cnpj\": \"99172719000101\",\r\n    \"razaoSocial\": \"Warley Kennedy Figueiredo\",\r\n    \"nomeFantasia\": \"REVISTA_IN_FOCO\",\r\n    \"endereco\": {\r\n        \"logradouro\": \"Rua Cidade Lion\",\r\n        \"cidade\": {\r\n            \"nome\": \"Guarulhos\",\r\n            \"estado\": {\r\n                \"nome\": \"Rio de Janeiro\",\r\n                \"uf\": \"RJ\"\r\n            }\r\n        },\r\n        \"cep\": \"07094190\",\r\n        \"numero\": \"184\",\r\n        \"complemento\": \"Apto 32\",\r\n        \"bairro\": \"Jardim Anny\"\r\n    },\r\n    \"email\": \"warley-ft@hotmail.com\",\r\n    \"site\": \"www.revista_in_foco.com\",\r\n    \"contato\": {\r\n        \"nome\": \"José Maria\",\r\n        \"sobrenome\": \"da Silva\",\r\n        \"celular\": \"11951472366\",\r\n        \"email\": \"jose.da.silva@mail.com\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{anunciantes_root_path}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{anunciantes_root_path}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retorna todos os anunciantes cadastrados",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{anunciantes_root_path}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{anunciantes_root_path}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retorna um anunciante pelo id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "text"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{anunciantes_root_path}}/{{anunciante_id}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{anunciantes_root_path}}",
+								"{{anunciante_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Atualiza os dados de um anunciante cadastrado",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 1,\r\n    \"cnpj\": \"99172719000101\",\r\n    \"razaoSocial\": \"Warley Kennedy Figueiredo\",\r\n    \"nomeFantasia\": \"REVISTA_IN_FOCO\",\r\n    \"endereco\": {\r\n        \"id\": 1,\r\n        \"logradouro\": \"Rua Cidade Lion\",\r\n        \"cidade\": {\r\n            \"id\": 1,\r\n            \"nome\": \"Guarulhos\",\r\n            \"estado\": {\r\n                \"id\": 18,\r\n                \"nome\": \"Rio de Janeiro\",\r\n                \"uf\": \"RJ\"\r\n            }\r\n        },\r\n        \"cep\": \"07094190\",\r\n        \"numero\": \"184\",\r\n        \"complemento\": \"Apto 32\",\r\n        \"bairro\": \"Jardim Anny\"\r\n    },\r\n    \"email\": \"warley-ft@hotmail.com\",\r\n    \"site\": \"www.revista_in_foco.com\",\r\n    \"contato\": {\r\n        \"id\": 1,\r\n        \"nome\": \"Maria José\",\r\n        \"sobrenome\": \"da Silva\",\r\n        \"celular\": \"11951472366\",\r\n        \"email\": \"jose.da.silva@mail.com\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{anunciantes_root_path}}/{{anunciante_id}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{anunciantes_root_path}}",
+								"{{anunciante_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Exclui um anunciante permanentemente",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{anunciantes_root_path}}/{{anunciante_id}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{anunciantes_root_path}}",
+								"{{anunciante_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ANUNCIO",
+			"item": [
+				{
+					"name": "Cadastra um novo anuncio",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"tamanho\": \"A4\",\r\n  \"valor\": 160.0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{anuncios_root_path}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{anuncios_root_path}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retorna todos os anuncios cadastrados",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{anuncios_root_path}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{anuncios_root_path}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retorna um anuncio pelo id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{anuncios_root_path}}/{{anuncio_id}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{anuncios_root_path}}",
+								"{{anuncio_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Atualiza um anúncio cadastrado",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 1,\r\n    \"tamanho\": \"A0\",\r\n    \"valor\": 60.0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{anuncios_root_path}}/{{anuncio_id}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{anuncios_root_path}}",
+								"{{anuncio_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Exclui um anúncio cadastrado",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}:{{porta}}/{{anuncios_root_path}}/{{anuncio_id}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{porta}}",
+							"path": [
+								"{{anuncios_root_path}}",
+								"{{anuncio_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
