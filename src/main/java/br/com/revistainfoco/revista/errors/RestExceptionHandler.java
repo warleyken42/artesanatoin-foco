@@ -1,10 +1,8 @@
 package br.com.revistainfoco.revista.errors;
 
-import br.com.revistainfoco.revista.errors.exceptions.CidadeJaCadastradaException;
-import br.com.revistainfoco.revista.errors.exceptions.CidadeNaoEncontradaException;
-import br.com.revistainfoco.revista.errors.exceptions.EstadoJaCadastradoException;
-import br.com.revistainfoco.revista.errors.exceptions.EstadoNaoEncontradoException;
+import br.com.revistainfoco.revista.errors.exceptions.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -44,4 +42,25 @@ public class RestExceptionHandler {
         ErrorDetail errorDetail = ErrorDetail.builder().mensagem(cidadeNaoEncontradoException.getMessage()).build();
         return new ResponseEntity<>(errorDetail, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(AnuncianteJaCadastradoException.class)
+    public ResponseEntity<?> handleAnuncianteJaCadastradoException(AnuncianteJaCadastradoException anuncianteJaCadastradoException) {
+        ErrorDetail errorDetail = ErrorDetail.builder().mensagem(anuncianteJaCadastradoException.getMessage()).build();
+        return new ResponseEntity<>(errorDetail, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(ContatoNaoEncontradoException.class)
+    public ResponseEntity<?> handleContatoNaoEncontradoException(ContatoNaoEncontradoException contatoNaoEncontradoException) {
+        ErrorDetail errorDetail = ErrorDetail.builder().mensagem(contatoNaoEncontradoException.getMessage()).build();
+        return new ResponseEntity<>(errorDetail, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException dataIntegrityViolationException) {
+        String message = dataIntegrityViolationException.getMostSpecificCause().getMessage().substring(dataIntegrityViolationException.getMostSpecificCause().getMessage().indexOf("Detalhe: "));
+        ErrorDetail errorDetail = ErrorDetail.builder().mensagem("Falha ao realizar uma operação com o banco de dados. " + message).build();
+        log.error(dataIntegrityViolationException.getMostSpecificCause().getMessage());
+        return new ResponseEntity<>(errorDetail, HttpStatus.CONFLICT);
+    }
+
 }

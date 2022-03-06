@@ -30,4 +30,5 @@ public class EstadoUpdateRequestDTO implements Serializable {
     @Size(min = 2, max = 2, message = "O campo uf deve ter exatamente dois caracteres")
     @Schema(description = "Unidade Federativa do estado que se deseja atualizar", example = "SP", required = true)
     private String uf;
+
 }

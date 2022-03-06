@@ -30,6 +30,13 @@ public class CidadeService {
     public Cidade create(Cidade cidade) {
         Estado estadoCadastrado = estadoService.findByNomeAndUf(cidade.getEstado().getNome(), cidade.getEstado().getUf());
         cidade.setEstado(estadoCadastrado);
+
+        Cidade cidadeCadastrada = repository.findByNome(cidade.getNome());
+
+        if (cidadeCadastrada != null) {
+            return cidadeCadastrada;
+        }
+
         return repository.save(cidade);
     }
 
@@ -39,6 +46,10 @@ public class CidadeService {
 
     public Cidade findById(Long id) {
         return repository.findById(id).orElseThrow(() -> new CidadeNaoEncontradaException("Cidade não encontrada"));
+    }
+
+    public Cidade findByNome(String nome) {
+        return repository.findByNome(nome);
     }
 
     public Cidade update(Long id, Cidade cidade) {
@@ -67,4 +78,5 @@ public class CidadeService {
     public CidadeResponseDTO toResponse(Cidade cidade) {
         return modelMapper.map(cidade, CidadeResponseDTO.class);
     }
+
 }

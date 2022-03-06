@@ -12,7 +12,7 @@ public class Cidade implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nome", length = 128, columnDefinition = "VARCHAR(128)", nullable = false)
+    @Column(name = "nome", length = 128, columnDefinition = "VARCHAR(128)", nullable = false, unique = true)
     private String nome;
 
     @ManyToOne

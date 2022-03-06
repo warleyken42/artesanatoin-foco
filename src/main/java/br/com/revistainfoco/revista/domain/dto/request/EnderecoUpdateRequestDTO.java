@@ -34,7 +34,4 @@ public class EnderecoUpdateRequestDTO implements Serializable {
 
     @Schema(description = "Bairro onde está localizado o endereço", example = "Jardim Anny")
     private String bairro;
-
-    @Schema(description = "Unidade federativa onde está localizado o endereço", example = "CE")
-    private String uf;
 }
