@@ -1,7 +1,6 @@
 package br.com.revistainfoco.revista.resources;
 
 import br.com.revistainfoco.revista.domain.dto.request.CidadeRequestDTO;
-import br.com.revistainfoco.revista.domain.dto.request.CidadeUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.CidadeResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Cidade;
 import br.com.revistainfoco.revista.errors.ErrorDetail;
@@ -52,11 +51,9 @@ public class CidadeResource {
             @ApiResponse(responseCode = "204", description = "Não há cidades cadastradas", content = @Content(schema = @Schema()))
     })
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> findAll() {
+    public ResponseEntity<List<CidadeResponseDTO>> findAll() {
         List<CidadeResponseDTO> cidadesCadastradas = new ArrayList<>();
-        service.findAll().forEach(cidade -> {
-            cidadesCadastradas.add(service.toResponse(cidade));
-        });
+        service.findAll().forEach(cidade -> cidadesCadastradas.add(service.toResponse(cidade)));
         if (cidadesCadastradas.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -82,8 +79,8 @@ public class CidadeResource {
             @ApiResponse(responseCode = "422", description = "Erro de validação", content = @Content(schema = @Schema(implementation = ErrorDetail.class)))
     })
     @PutMapping(value = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CidadeResponseDTO> update(@PathVariable("id") Long id, @RequestBody @Valid CidadeUpdateRequestDTO cidadeUpdateRequestDTO) {
-        Cidade cidade = service.toEntity(cidadeUpdateRequestDTO);
+    public ResponseEntity<CidadeResponseDTO> update(@PathVariable("id") Long id, @RequestBody @Valid CidadeRequestDTO cidadeRequestDTO) {
+        Cidade cidade = service.toEntity(cidadeRequestDTO);
         Cidade cidadeAtualizada = service.update(id, cidade);
         return new ResponseEntity<>(service.toResponse(cidadeAtualizada), HttpStatus.OK);
 
@@ -96,7 +93,7 @@ public class CidadeResource {
             @ApiResponse(responseCode = "415", description = "Media não suportada", content = @Content(schema = @Schema(implementation = ErrorDetail.class)))
     })
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }

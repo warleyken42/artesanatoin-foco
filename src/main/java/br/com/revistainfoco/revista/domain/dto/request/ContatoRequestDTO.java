@@ -6,16 +6,18 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Tag(name = "anunciantes", description = "Cadastro de Anunciantes")
-public class ContatoRequestDTO {
+public class ContatoRequestDTO implements Serializable {
 
     @Schema(description = "Nome do contato", example = "José Ramos")
     private String nome;
 
-    @Schema(description = "Sobrenome do contato", example = "de Azevedo")
+    @Schema(description = "Sobrenome do contato", example = "Farias de Azevedo")
     private String sobrenome;
 
     @Schema(description = "Telefone celular do contato", example = "11951482367")

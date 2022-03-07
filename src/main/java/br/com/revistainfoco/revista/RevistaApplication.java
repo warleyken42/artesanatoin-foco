@@ -23,6 +23,6 @@ public class RevistaApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        service.populateAddressTable();
+        service.populaTabelaDeEstados();
     }
 }

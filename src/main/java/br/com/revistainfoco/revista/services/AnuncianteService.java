@@ -1,7 +1,6 @@
 package br.com.revistainfoco.revista.services;
 
 import br.com.revistainfoco.revista.domain.dto.request.AnuncianteRequestDTO;
-import br.com.revistainfoco.revista.domain.dto.request.AnuncianteUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.AnuncianteResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.*;
 import br.com.revistainfoco.revista.errors.exceptions.AnuncianteJaCadastradoException;
@@ -38,7 +37,7 @@ public class AnuncianteService {
 
     @Transactional
     public Anunciante create(Anunciante anunciante) {
-        Optional<Anunciante> anuncianteCadastrado = repository.findBycnpj(anunciante.getCnpj());
+        Optional<Anunciante> anuncianteCadastrado = repository.findByCnpj(anunciante.getCnpj());
         if (anuncianteCadastrado.isPresent()) {
             throw new AnuncianteJaCadastradoException("Anunciante já cadastrado");
         }
@@ -46,18 +45,18 @@ public class AnuncianteService {
         Cidade cidade = anunciante.getEndereco().getCidade();
         Estado estado = anunciante.getEndereco().getCidade().getEstado();
 
-        Estado estadoCadastrado = estadoService.findByNomeAndUf(estado.getNome(), estado.getUf());
-        Cidade cidadeCadastrada = cidadeService.findByNome(cidade.getNome());
+        Optional<Estado> estadoCadastrado = estadoService.findByNomeAndUf(estado.getNome(), estado.getUf());
+        Optional<Cidade> cidadeCadastrada = cidadeService.findByNome(cidade.getNome());
         boolean enderecoCadastrado = enderecoService.findAll().contains(endereco);
 
-        if (estadoCadastrado == null) {
-            estadoCadastrado = estadoService.create(estado);
-            anunciante.getEndereco().getCidade().setEstado(estadoCadastrado);
+        if (estadoCadastrado.isPresent()) {
+            Estado estadoCriado = estadoService.create(estado);
+            anunciante.getEndereco().getCidade().setEstado(estadoCriado);
         }
 
-        if (cidadeCadastrada == null) {
-            cidadeCadastrada = cidadeService.create(cidade);
-            anunciante.getEndereco().setCidade(cidadeCadastrada);
+        if (cidadeCadastrada.isPresent()) {
+            Cidade cidadeCriada = cidadeService.create(cidade);
+            anunciante.getEndereco().setCidade(cidadeCriada);
         }
 
         if (!enderecoCadastrado) {
@@ -65,14 +64,12 @@ public class AnuncianteService {
             anunciante.setEndereco(novoEndereco);
         }
 
-        Contato contatoCadastrado = contatoService.findByCelular(anunciante.getContato().getCelular());
+        Optional<Contato> contatoCadastrado = contatoService.findByCelular(anunciante.getContato().getCelular());
 
-        if (contatoCadastrado == null) {
-            Contato contato = contatoService.create(anunciante.getContato());
-            anunciante.setContato(contato);
-        } else {
-            anunciante.setContato(contatoCadastrado);
-        }
+        Contato contato;
+
+        contato = contatoCadastrado.orElseGet(() -> contatoService.create(anunciante.getContato()));
+        anunciante.setContato(contato);
         return repository.save(anunciante);
     }
 
@@ -85,7 +82,7 @@ public class AnuncianteService {
     }
 
     public Anunciante update(Long id, Anunciante anunciante) {
-        Anunciante anunciantesCadastrado = repository.findById(id).orElseThrow(() -> new AnuncianteNaoEncontradoException("Anunciante não encontrado"));
+        Anunciante anunciantesCadastrado = this.findById(id);
 
         if (anunciantesCadastrado != null) {
             anunciante.setId(id);
@@ -97,38 +94,42 @@ public class AnuncianteService {
         Contato contato = anunciante.getContato();
 
 
-        Estado estadoCadastrado = estadoService.findByNomeAndUf(estado.getNome(), estado.getUf());
-        Cidade cidadeCadastrada = cidadeService.findByNome(cidade.getNome());
-        Contato contatoCadastrado = contatoService.findByCelular(contato.getCelular());
+        Optional<Estado> estadoCadastrado = estadoService.findByNomeAndUf(estado.getNome(), estado.getUf());
+        Optional<Cidade> cidadeCadastrada = cidadeService.findByNome(cidade.getNome());
+
+        Optional<Contato> contatoCadastrado = contatoService.findByCelular(contato.getCelular());
         boolean enderecoCadastrado = enderecoService.findAll().contains(endereco);
 
 
-        if (contatoCadastrado == null) {
+        if (!contatoCadastrado.isPresent()) {
             contatoService.create(contato);
         } else {
-            contatoCadastrado.setNome(contato.getNome());
-            contatoCadastrado.setSobrenome(contato.getSobrenome());
-            contatoCadastrado.setCelular(contato.getCelular());
-            contatoCadastrado.setEmail(contato.getEmail());
-            anunciante.setContato(contatoCadastrado);
+            Contato contatoExistente = contatoCadastrado.get();
+            contatoExistente.setNome(contato.getNome());
+            contatoExistente.setSobrenome(contato.getSobrenome());
+            contatoExistente.setCelular(contato.getCelular());
+            contatoExistente.setEmail(contato.getEmail());
+            anunciante.setContato(contatoExistente);
         }
 
-        if (estadoCadastrado == null) {
-            estadoCadastrado = estadoService.create(estado);
-            anunciante.getEndereco().getCidade().setEstado(estadoCadastrado);
+        if (!estadoCadastrado.isPresent()) {
+            Estado estadoCriado = estadoService.create(estado);
+            anunciante.getEndereco().getCidade().setEstado(estadoCriado);
         } else {
-            estadoCadastrado.setNome(estado.getNome());
-            estadoCadastrado.setUf(estado.getUf());
-            Estado estadoAtualizado = estadoService.update(estadoCadastrado.getId(), estadoCadastrado);
+            Estado estadoExistente = estadoCadastrado.get();
+            estadoExistente.setNome(estado.getNome());
+            estadoExistente.setUf(estado.getUf());
+            Estado estadoAtualizado = estadoService.update(estadoExistente.getId(), estadoExistente);
             anunciante.getEndereco().getCidade().setEstado(estadoAtualizado);
         }
 
-        if (cidadeCadastrada == null) {
-            cidadeCadastrada = cidadeService.create(cidade);
-            anunciante.getEndereco().setCidade(cidadeCadastrada);
+        if (!cidadeCadastrada.isPresent()) {
+            Cidade cidadeCriada = cidadeService.create(cidade);
+            anunciante.getEndereco().setCidade(cidadeCriada);
         } else {
-            cidadeCadastrada.setNome(cidade.getNome());
-            Cidade cidadeAtualizada = cidadeService.update(cidadeCadastrada.getId(), cidade);
+            Cidade cidadeExistente = cidadeCadastrada.get();
+            cidadeExistente.setNome(cidade.getNome());
+            Cidade cidadeAtualizada = cidadeService.update(cidadeExistente.getId(), cidade);
             assert anunciantesCadastrado != null;
             anunciantesCadastrado.getEndereco().setCidade(cidadeAtualizada);
         }
@@ -160,13 +161,7 @@ public class AnuncianteService {
         return modelMapper.map(anuncianteRequestDTO, Anunciante.class);
     }
 
-    public Anunciante toEntity(AnuncianteUpdateRequestDTO anuncianteUpdateRequestDTO) {
-        return modelMapper.map(anuncianteUpdateRequestDTO, Anunciante.class);
-    }
-
     public AnuncianteResponseDTO toResponse(Anunciante anunciante) {
         return modelMapper.map(anunciante, AnuncianteResponseDTO.class);
     }
-
-
 }

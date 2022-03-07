@@ -18,10 +18,10 @@ public class AnuncianteRequestDTO implements Serializable {
     @Schema(description = "Cnpj do anunciante", example = "99.172.719/0001-77")
     private String cnpj;
 
-    @Schema(description = "Razao Social do anunciante", example = "Warley Kennedy Figueiredo")
+    @Schema(description = "Razao social do anunciante", example = "Revista In Foco Ltda-ME")
     private String razaoSocial;
 
-    @Schema(description = "Nome Fantasia do anunciante", example = "REVISTA_IN_FOCO")
+    @Schema(description = "Nome Fantasia do anunciante", example = "Revista in foco")
     private String nomeFantasia;
 
     @Schema(description = "Endereço do anunciante")
@@ -30,7 +30,7 @@ public class AnuncianteRequestDTO implements Serializable {
     @Schema(description = "Email do anunciante", example = "warley-ft@hotmail.com")
     private String email;
 
-    @Schema(description = "Site do anunciante", example = "www.revista_in_foco.com")
+    @Schema(description = "Site do anunciante", example = "www.revistainfoco.com")
     private String site;
 
     @Schema(description = "Contato do anunciante")

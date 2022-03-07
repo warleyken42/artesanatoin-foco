@@ -1,15 +1,12 @@
 package br.com.revistainfoco.revista.services;
 
 import br.com.revistainfoco.revista.domain.dto.request.AnuncioRequestDTO;
-import br.com.revistainfoco.revista.domain.dto.request.AnuncioUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.AnuncioResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Anuncio;
-import br.com.revistainfoco.revista.errors.exceptions.AnuncioJaCadastradoException;
 import br.com.revistainfoco.revista.errors.exceptions.AnuncioNaoEncontradoException;
 import br.com.revistainfoco.revista.repository.AnuncioRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,28 +36,21 @@ public class AnuncioService {
     }
 
     public Anuncio update(Long id, Anuncio anuncio) {
-        try {
-            Anuncio anuncioCadastrado = repository.findById(id).orElseThrow(() -> new AnuncioNaoEncontradoException("Anuncio não encontrado"));
-            anuncioCadastrado.setId(anuncio.getId());
-            anuncioCadastrado.setTamanho(anuncio.getTamanho());
-            anuncioCadastrado.setValor(anuncio.getValor());
-            return repository.save(anuncioCadastrado);
-        } catch (DataIntegrityViolationException exception) {
-            throw new AnuncioJaCadastradoException("Anuncio já cadastrado");
-        }
+        Anuncio anuncioCadastrado = this.findById(id);
+
+        anuncioCadastrado.setTamanho(anuncio.getTamanho());
+        anuncioCadastrado.setValor(anuncio.getValor());
+
+        return repository.save(anuncioCadastrado);
     }
 
     public void delete(long id) {
-        Anuncio anuncioCadastrado = repository.findById(id).orElseThrow(() -> new AnuncioNaoEncontradoException("Anuncio não encontrado"));
+        Anuncio anuncioCadastrado = this.findById(id);
         repository.delete(anuncioCadastrado);
     }
 
     public Anuncio toEntity(AnuncioRequestDTO anuncioRequestDTO) {
         return modelMapper.map(anuncioRequestDTO, Anuncio.class);
-    }
-
-    public Anuncio toEntity(AnuncioUpdateRequestDTO anuncioUpdateRequestDTO) {
-        return modelMapper.map(anuncioUpdateRequestDTO, Anuncio.class);
     }
 
     public AnuncioResponseDTO toResponse(Anuncio anuncio) {

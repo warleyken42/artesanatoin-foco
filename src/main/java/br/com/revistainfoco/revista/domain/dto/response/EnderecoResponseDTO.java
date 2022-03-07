@@ -14,13 +14,13 @@ import java.io.Serializable;
 @Tag(name = "enderecos", description = "Cadastro de Endereços")
 public class EnderecoResponseDTO implements Serializable {
 
-    @Schema(description = "ID do endereço que se deseja atualizar", example = "1", required = true)
+    @Schema(description = "ID do endereço cadastrado", example = "1")
     private Long id;
 
-    @Schema(description = "Nome do logradouro que se deseja atualizar", example = "Rua Cidade Lion", required = true)
+    @Schema(description = "Nome do logradouro do endereço", example = "Rua Cidade Lion")
     private String logradouro;
 
-    @Schema(description = "Cidade do endereço")
+    @Schema(description = "Cidade onde está localizado o endereço")
     private CidadeResponseDTO cidade;
 
     @Schema(description = "CEP do endereço", example = "7095190")

@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Tag(name = "anuncios", description = "Cadastro de Anuncio")
+@Tag(name = "anuncios", description = "Cadastro de Anuncios")
 public class AnuncioRequestDTO implements Serializable {
 
     @Schema(description = "Tamanho do anúncio", example = "A4")
@@ -20,5 +20,4 @@ public class AnuncioRequestDTO implements Serializable {
 
     @Schema(description = "Valor do anúncio", example = "160.00")
     private BigDecimal valor;
-
 }

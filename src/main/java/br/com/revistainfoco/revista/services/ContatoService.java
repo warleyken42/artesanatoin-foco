@@ -1,7 +1,6 @@
 package br.com.revistainfoco.revista.services;
 
 import br.com.revistainfoco.revista.domain.dto.request.ContatoRequestDTO;
-import br.com.revistainfoco.revista.domain.dto.request.ContatoUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.ContatoResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Contato;
 import br.com.revistainfoco.revista.errors.exceptions.ContatoNaoEncontradoException;
@@ -11,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ContatoService {
@@ -37,7 +37,7 @@ public class ContatoService {
         return repository.findById(id).orElseThrow(() -> new ContatoNaoEncontradoException("Contato não encontrado"));
     }
 
-    public Contato findByCelular(String celular) {
+    public Optional<Contato> findByCelular(String celular) {
         return repository.findByCelular(celular);
     }
 
@@ -54,10 +54,6 @@ public class ContatoService {
 
     public Contato toEntity(ContatoRequestDTO contatoRequestDTO) {
         return modelMapper.map(contatoRequestDTO, Contato.class);
-    }
-
-    public Contato toEntity(ContatoUpdateRequestDTO contatoUpdateRequestDTO) {
-        return modelMapper.map(contatoUpdateRequestDTO, Contato.class);
     }
 
     public ContatoResponseDTO toResponse(Contato contato) {

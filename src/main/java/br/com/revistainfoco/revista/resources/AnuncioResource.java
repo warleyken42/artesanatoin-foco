@@ -1,7 +1,6 @@
 package br.com.revistainfoco.revista.resources;
 
 import br.com.revistainfoco.revista.domain.dto.request.AnuncioRequestDTO;
-import br.com.revistainfoco.revista.domain.dto.request.AnuncioUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.AnuncioResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Anuncio;
 import br.com.revistainfoco.revista.errors.ErrorDetail;
@@ -51,11 +50,9 @@ public class AnuncioResource {
             @ApiResponse(responseCode = "204", description = "Não há anuncios cadastrados", content = @Content(schema = @Schema()))
     })
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> findAll() {
+    public ResponseEntity<List<AnuncioResponseDTO>> findAll() {
         List<AnuncioResponseDTO> anunciosCadastrados = new ArrayList<>();
-        service.findAll().forEach(anuncio -> {
-            anunciosCadastrados.add(service.toResponse(anuncio));
-        });
+        service.findAll().forEach(anuncio -> anunciosCadastrados.add(service.toResponse(anuncio)));
         if (anunciosCadastrados.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -81,8 +78,8 @@ public class AnuncioResource {
             @ApiResponse(responseCode = "422", description = "Erro de validação", content = @Content(schema = @Schema(implementation = ErrorDetail.class)))
     })
     @PutMapping(value = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AnuncioResponseDTO> update(@PathVariable("id") Long id, @RequestBody @Valid AnuncioUpdateRequestDTO anuncioUpdateRequestDTO) {
-        Anuncio anuncioAtualizado = service.update(id, service.toEntity(anuncioUpdateRequestDTO));
+    public ResponseEntity<AnuncioResponseDTO> update(@PathVariable("id") Long id, @RequestBody @Valid AnuncioRequestDTO anuncioRequestDTO) {
+        Anuncio anuncioAtualizado = service.update(id, service.toEntity(anuncioRequestDTO));
         return new ResponseEntity<>(service.toResponse(anuncioAtualizado), HttpStatus.OK);
     }
 
@@ -93,7 +90,7 @@ public class AnuncioResource {
             @ApiResponse(responseCode = "415", description = "Media não suportada", content = @Content(schema = @Schema(implementation = ErrorDetail.class)))
     })
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }

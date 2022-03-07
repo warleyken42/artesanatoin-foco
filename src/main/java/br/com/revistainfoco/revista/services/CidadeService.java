@@ -1,7 +1,6 @@
 package br.com.revistainfoco.revista.services;
 
 import br.com.revistainfoco.revista.domain.dto.request.CidadeRequestDTO;
-import br.com.revistainfoco.revista.domain.dto.request.CidadeUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.CidadeResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Cidade;
 import br.com.revistainfoco.revista.domain.entity.Estado;
@@ -11,7 +10,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CidadeService {
@@ -27,15 +28,17 @@ public class CidadeService {
         this.modelMapper = modelMapper;
     }
 
+    @Transactional
     public Cidade create(Cidade cidade) {
-        Estado estadoCadastrado = estadoService.findByNomeAndUf(cidade.getEstado().getNome(), cidade.getEstado().getUf());
-        cidade.setEstado(estadoCadastrado);
+        Optional<Cidade> cidadeCadastrada = repository.findByNome(cidade.getNome());
+        Estado estadoCadastrado = estadoService.create(cidade.getEstado());
 
-        Cidade cidadeCadastrada = repository.findByNome(cidade.getNome());
-
-        if (cidadeCadastrada != null) {
-            return cidadeCadastrada;
+        if (cidadeCadastrada.isPresent()) {
+            cidadeCadastrada.get().setEstado(estadoCadastrado);
+            return cidadeCadastrada.get();
         }
+
+        cidade.setEstado(estadoCadastrado);
 
         return repository.save(cidade);
     }
@@ -48,22 +51,33 @@ public class CidadeService {
         return repository.findById(id).orElseThrow(() -> new CidadeNaoEncontradaException("Cidade não encontrada"));
     }
 
-    public Cidade findByNome(String nome) {
+    public Optional<Cidade> findByNome(String nome) {
         return repository.findByNome(nome);
     }
 
     public Cidade update(Long id, Cidade cidade) {
-        Cidade cidadeCadastrada = repository.findById(id).orElseThrow(() -> new CidadeNaoEncontradaException("Cidade não encontrado"));
-        Estado estadoCadastrado = estadoService.findByNomeAndUf(cidade.getEstado().getNome(), cidade.getEstado().getUf());
+        Cidade cidadeCadastrada = this.findById(id);
+
+        Optional<Estado> estadoCadastrado = estadoService.findByNomeAndUf(cidade.getEstado().getNome(), cidade.getEstado().getUf());
+
+        if (estadoCadastrado.isPresent()) {
+            Estado estado = estadoCadastrado.get();
+            estado.setUf(cidade.getEstado().getUf());
+            estado.setNome(cidade.getEstado().getNome());
+            Estado estadoCriado = estadoService.create(estado);
+            cidadeCadastrada.setEstado(estadoCriado);
+        } else {
+            Estado estado = estadoService.create(cidade.getEstado());
+            cidadeCadastrada.setEstado(estado);
+        }
 
         cidadeCadastrada.setNome(cidade.getNome());
-        cidadeCadastrada.setEstado(estadoCadastrado);
 
         return repository.save(cidadeCadastrada);
     }
 
     public void delete(Long id) {
-        Cidade cidadeCadastrada = repository.findById(id).orElseThrow(() -> new CidadeNaoEncontradaException("Cidade não encontrado"));
+        Cidade cidadeCadastrada = this.findById(id);
         repository.delete(cidadeCadastrada);
     }
 
@@ -71,12 +85,7 @@ public class CidadeService {
         return modelMapper.map(cidadeRequestDTO, Cidade.class);
     }
 
-    public Cidade toEntity(CidadeUpdateRequestDTO cidadeUpdateRequestDTO) {
-        return modelMapper.map(cidadeUpdateRequestDTO, Cidade.class);
-    }
-
     public CidadeResponseDTO toResponse(Cidade cidade) {
         return modelMapper.map(cidade, CidadeResponseDTO.class);
     }
-
 }

@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Tag(name = "anuncios", description = "Cadastro de Anuncios")
+@Tag(name = "anuncios", description = "Cadastro de Anúncios")
 public class AnuncioResponseDTO implements Serializable {
 
     @Schema(description = "Id do anuncio", example = "1", required = true)

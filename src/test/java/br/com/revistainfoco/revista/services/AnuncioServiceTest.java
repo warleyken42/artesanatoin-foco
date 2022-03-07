@@ -1,7 +1,6 @@
 package br.com.revistainfoco.revista.services;
 
 import br.com.revistainfoco.revista.domain.dto.request.AnuncioRequestDTO;
-import br.com.revistainfoco.revista.domain.dto.request.AnuncioUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.AnuncioResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Anuncio;
 import br.com.revistainfoco.revista.errors.exceptions.AnuncioNaoEncontradoException;
@@ -45,6 +44,7 @@ class AnuncioServiceTest {
 
     @BeforeEach
     void beforeEach() {
+        anuncioRequestDTO = new AnuncioRequestDTO("A4", new BigDecimal("50.0"));
         anuncio = new Anuncio(null, "A4", new BigDecimal("160.0"));
         anuncioCadastrado = new Anuncio(1L, "A4", new BigDecimal("160.0"));
     }
@@ -76,9 +76,10 @@ class AnuncioServiceTest {
 
         Anuncio anuncio = anunciosCadastrados.get(0);
 
-        Assertions.assertThat(anunciosCadastrados).isNotNull();
-        Assertions.assertThat(anunciosCadastrados).isNotEmpty();
-        Assertions.assertThat(anunciosCadastrados.size()).isEqualTo(3);
+        Assertions.assertThat(anunciosCadastrados)
+                .isNotNull()
+                .isNotEmpty()
+                .hasSize(3);
 
         Assertions.assertThat(anuncio.getValor()).isEqualTo(new BigDecimal("160.0"));
         Assertions.assertThat(anuncio.getTamanho()).isEqualTo("A4");
@@ -129,7 +130,7 @@ class AnuncioServiceTest {
     @DisplayName(value = "Dado um id de um anuncio que não está cadastrado quando tentar recuperar o anuncio pelo id então deve lançar a exception AnuncioNaoEncontradoException")
     void DadoUmIdDeUmAnuncioQueNaoEstaCadastradoQuandoTentarRecuperarOAnuncioPeloIdEntaoDeveLancarAExceptionAnuncioNaoEncontradoException() {
 
-        when(repository.findById(ArgumentMatchers.any())).thenThrow(AnuncioNaoEncontradoException.class);
+        when(repository.findById(ArgumentMatchers.any())).thenReturn(Optional.empty());
 
         assertThrows(AnuncioNaoEncontradoException.class, () -> service.findById(1L));
     }
@@ -138,7 +139,7 @@ class AnuncioServiceTest {
     @DisplayName(value = "Dado um id de um anuncio que não está cadastrado quando tentar atualizar o anuncio pelo id então deve lançar a exception AnuncioNaoEncontradoException")
     void DadoUmIdDeUmAnuncioQueNaoEstaCadastradoQuandoTentarAtualizarOAnuncioPeloIdEntaoDeveLancarAExceptionAnuncioNaoEncontradoException() {
 
-        when(repository.findById(1L)).thenThrow(AnuncioNaoEncontradoException.class);
+        when(repository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(AnuncioNaoEncontradoException.class, () -> service.update(1L, new Anuncio()));
     }
@@ -147,7 +148,7 @@ class AnuncioServiceTest {
     @DisplayName(value = "Dado um id de um anuncio que não está cadastrado quando tentar excluir o anuncio pelo id então deve lançar a exception AnuncioNaoEncontradoException")
     void DadoUmIdDeUmAnuncioQueNaoEstaCadastradoQuandoTentarExcluirOAnuncioPeloIdEntaoDeveLancarAExceptionAnuncioNaoEncontradoException() {
 
-        when(repository.findById(ArgumentMatchers.any())).thenThrow(AnuncioNaoEncontradoException.class);
+        when(repository.findById(ArgumentMatchers.any())).thenReturn(Optional.empty());
 
         assertThrows(AnuncioNaoEncontradoException.class, () -> service.delete(1L));
     }
@@ -168,11 +169,9 @@ class AnuncioServiceTest {
     @DisplayName(value = "Dado um AnuncioUpdateRequestDTO quando tentar converter para a entidade Anuncio então deve retornar a entidade anuncio")
     void DadoUmAnuncioRequestUpdateDTOQuandoTentarConverterParaAEntidadeAnuncioEntaoDeveRetornarAEntidadeAnuncio() {
 
-        AnuncioUpdateRequestDTO anuncioUpdateRequestDTO = new AnuncioUpdateRequestDTO(1L, "A4", new BigDecimal("160.0"));
+        when(modelMapper.map(anuncioRequestDTO, Anuncio.class)).thenReturn(anuncioCadastrado);
 
-        when(modelMapper.map(anuncioUpdateRequestDTO, Anuncio.class)).thenReturn(anuncioCadastrado);
-
-        Anuncio anuncio = service.toEntity(anuncioUpdateRequestDTO);
+        Anuncio anuncio = service.toEntity(anuncioRequestDTO);
 
         Assertions.assertThat(anuncio).isNotNull();
         Assertions.assertThat(anuncio.getId()).isEqualTo(1L);
@@ -192,7 +191,5 @@ class AnuncioServiceTest {
 
         Assertions.assertThat(anuncioResponse).isNotNull();
         Assertions.assertThat(anuncioResponse.getId()).isEqualTo(1L);
-
     }
-
 }

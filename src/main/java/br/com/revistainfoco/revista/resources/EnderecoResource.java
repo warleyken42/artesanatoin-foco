@@ -1,7 +1,6 @@
 package br.com.revistainfoco.revista.resources;
 
 import br.com.revistainfoco.revista.domain.dto.request.EnderecoRequestDTO;
-import br.com.revistainfoco.revista.domain.dto.request.EnderecoUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.EnderecoResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Endereco;
 import br.com.revistainfoco.revista.errors.ErrorDetail;
@@ -64,11 +63,9 @@ public class EnderecoResource {
             @ApiResponse(responseCode = "204", description = "Não há endereços cadastradas", content = @Content(schema = @Schema()))
     })
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> findAll() {
+    public ResponseEntity<List<EnderecoResponseDTO>> findAll() {
         List<EnderecoResponseDTO> enderecosCadastrados = new ArrayList<>();
-        service.findAll().forEach(endereco -> {
-            enderecosCadastrados.add(service.toResponse(endereco));
-        });
+        service.findAll().forEach(endereco -> enderecosCadastrados.add(service.toResponse(endereco)));
         if (enderecosCadastrados.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -95,8 +92,8 @@ public class EnderecoResource {
             @ApiResponse(responseCode = "422", description = "Erro de validação", content = @Content(schema = @Schema(implementation = ErrorDetail.class)))
     })
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<EnderecoResponseDTO> update(@PathVariable("id") Long id, @RequestBody @Valid EnderecoUpdateRequestDTO enderecoUpdateRequestDTO) {
-        Endereco enderecoAtualizado = service.update(id, service.toEntity(enderecoUpdateRequestDTO));
+    public ResponseEntity<EnderecoResponseDTO> update(@PathVariable("id") Long id, @RequestBody @Valid EnderecoRequestDTO enderecoRequestDTO) {
+        Endereco enderecoAtualizado = service.update(id, service.toEntity(enderecoRequestDTO));
         return new ResponseEntity<>(service.toResponse(enderecoAtualizado), HttpStatus.OK);
     }
 
@@ -107,7 +104,7 @@ public class EnderecoResource {
             @ApiResponse(responseCode = "415", description = "Media não suportada", content = @Content(schema = @Schema(implementation = ErrorDetail.class)))
     })
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
