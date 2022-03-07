@@ -1,7 +1,6 @@
 package br.com.revistainfoco.revista.services;
 
 import br.com.revistainfoco.revista.domain.dto.request.EnderecoRequestDTO;
-import br.com.revistainfoco.revista.domain.dto.request.EnderecoUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.EnderecoResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Cidade;
 import br.com.revistainfoco.revista.domain.entity.Endereco;
@@ -49,8 +48,13 @@ public class EnderecoService {
         return repository.findById(id).orElseThrow(() -> new EnderecoNaoEncontradoException("Endereço não encontrado"));
     }
 
+
+    public Endereco findByCep(String cep) {
+        return repository.findByCep(cep).orElseThrow(() -> new EnderecoNaoEncontradoException("Endereço não encontrado"));
+    }
+
     public Endereco update(Long id, Endereco endereco) {
-        Endereco enderecoCadastrado = repository.findById(id).orElseThrow(() -> new EnderecoNaoEncontradoException("Endereço não encontrado"));
+        Endereco enderecoCadastrado = this.findById(id);
 
         Cidade cidadeCadastrada;
 
@@ -65,18 +69,19 @@ public class EnderecoService {
             if (cidadeCadastrada != null) {
                 cidadeCadastrada.setNome(endereco.getCidade().getNome());
                 cidadeCadastrada.setEstado(endereco.getCidade().getEstado());
-                cidadeService.create(cidadeCadastrada);
+                cidadeService.update(cidadeCadastrada.getId(), cidadeCadastrada);
             }
         } else {
             cidadeCadastrada = cidadeService.create(new Cidade(null, endereco.getCidade().getNome(), endereco.getCidade().getEstado()));
         }
 
         endereco.setCidade(cidadeCadastrada);
+
         return repository.save(endereco);
     }
 
     public void delete(Long id) {
-        Endereco enderecoCadastrado = repository.findById(id).orElseThrow(() -> new EnderecoNaoEncontradoException("Endereço não encontrado"));
+        Endereco enderecoCadastrado = this.findById(id);
         repository.delete(enderecoCadastrado);
     }
 
@@ -84,15 +89,7 @@ public class EnderecoService {
         return modelMapper.map(enderecoRequestDTO, Endereco.class);
     }
 
-    public Endereco toEntity(EnderecoUpdateRequestDTO enderecoUpdateRequestDTO) {
-        return modelMapper.map(enderecoUpdateRequestDTO, Endereco.class);
-    }
-
     public EnderecoResponseDTO toResponse(Endereco endereco) {
         return modelMapper.map(endereco, EnderecoResponseDTO.class);
-    }
-
-    public Endereco findByCep(String cep) {
-        return repository.findByCep(cep).orElseThrow(() -> new EnderecoNaoEncontradoException("Endereço não encontrado"));
     }
 }

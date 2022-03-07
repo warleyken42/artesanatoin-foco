@@ -19,6 +19,6 @@ public class CidadeRequestDTO implements Serializable {
     @Schema(description = "Nome da cidade que se deseja cadastrar", example = "Jaguaribe", required = true)
     private String nome;
 
-    @Schema(description = "Estado que pertence a cidade que se deseja cadastrar", required = true)
+    @Schema(description = "Estado que pertence a cidade que se deseja cadastrar")
     private EstadoRequestDTO estado;
 }

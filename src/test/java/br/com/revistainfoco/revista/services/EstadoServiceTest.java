@@ -1,10 +1,8 @@
 package br.com.revistainfoco.revista.services;
 
 import br.com.revistainfoco.revista.domain.dto.request.EstadoRequestDTO;
-import br.com.revistainfoco.revista.domain.dto.request.EstadoUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.EstadoResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Estado;
-import br.com.revistainfoco.revista.errors.exceptions.EstadoJaCadastradoException;
 import br.com.revistainfoco.revista.errors.exceptions.EstadoNaoEncontradoException;
 import br.com.revistainfoco.revista.repository.EstadoRepository;
 import org.assertj.core.api.Assertions;
@@ -16,7 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,16 +36,17 @@ class EstadoServiceTest {
 
     @InjectMocks
     private EstadoService service;
-
     private Estado estadoCadastrado;
     private Estado estado;
     private EstadoRequestDTO estadoRequestDTO;
+    private EstadoResponseDTO estadoResponseDTO;
 
     @BeforeEach
     void beforeEach() {
-        estado = new Estado(null, "Ceará", "CE");
-        estadoCadastrado = new Estado(1L, "Ceará", "CE");
+        estadoResponseDTO = new EstadoResponseDTO(1L, "Ceará", "CE");
         estadoRequestDTO = new EstadoRequestDTO("Ceará", "CE");
+        estadoCadastrado = new Estado(1L, "Ceará", "CE");
+        estado = new Estado(null, "Ceará", "CE");
     }
 
     @Test
@@ -77,9 +75,10 @@ class EstadoServiceTest {
 
         List<Estado> estadosCadastrados = service.findAll();
 
-        Assertions.assertThat(estadosCadastrados).isNotNull();
-        Assertions.assertThat(estadosCadastrados).isNotEmpty();
-        Assertions.assertThat(estadosCadastrados.size()).isEqualTo(3);
+        Assertions.assertThat(estadosCadastrados)
+                .isNotNull()
+                .isNotEmpty()
+                .hasSize(3);
     }
 
     @Test
@@ -96,23 +95,15 @@ class EstadoServiceTest {
     }
 
     @Test
-    @DisplayName("Dado um estado para atualizar quando tentar atualizar os dados e houver uma duplicidade então deve lançar a exception EstadoJaCadastradoException")
-    void DadoUmEstadoParaAtualizarQuandoTentarAtualizarOsDadosEHouverUmaDuplicidadeEntaoDeveLancarAExceptionEstadoJaCadastradoException() {
-        when(repository.findById(1L)).thenReturn(Optional.of(estadoCadastrado));
-        when(repository.save(estadoCadastrado)).thenThrow(DataIntegrityViolationException.class);
-
-        assertThrows(EstadoJaCadastradoException.class, () -> service.update(1L, estadoCadastrado));
-    }
-
-    @Test
     @DisplayName("Dado um estado para atualizar quando tentar atualizar os dados então deve retornar o estado com os dados atualizados")
     void DadoUmEstadoParaAtualizarQuandoTentarAtualizarOsDadosEntaoDeveRetornarOEstadoComOsDadosAtualizados() {
         Estado estadoComNovosDados = new Estado(1L, "São Paulo", "SP");
 
-        when(repository.findById(1L)).thenReturn(Optional.of(estadoCadastrado));
-        when(repository.save(estadoCadastrado)).thenReturn(estadoComNovosDados);
+        when(repository.findByNomeAndUf(estadoComNovosDados.getNome(), estadoComNovosDados.getUf())).thenReturn(Optional.empty());
+        when(repository.findById(estadoComNovosDados.getId())).thenReturn(Optional.of(estadoCadastrado));
+        when(repository.save(estadoComNovosDados)).thenReturn(estadoComNovosDados);
 
-        Estado estadoAtualizado = service.update(1L, estadoCadastrado);
+        Estado estadoAtualizado = service.update(1L, estadoComNovosDados);
 
         Assertions.assertThat(estadoAtualizado).isNotNull();
         Assertions.assertThat(estadoAtualizado.getId()).isEqualTo(1L);
@@ -129,34 +120,26 @@ class EstadoServiceTest {
     }
 
     @Test
-    @DisplayName(value = "Dado um estado já cadastrado quando tentar cadastrar novamente então deve lançar a exception EstadoJaCadastradoException")
-    void DadoUmEstadoJaCadastradoQuandoTentarCadastrarNovamenteEntaoDeveLancarAExceptionEstadoJaCadastradoException() {
-        when(repository.save(estado)).thenThrow(DataIntegrityViolationException.class);
-
-        assertThrows(EstadoJaCadastradoException.class, () -> service.create(estado));
-    }
-
-    @Test
     @DisplayName(value = "Dado um id de um estado que não está cadastrado quando tentar recuperar o estado pelo id então deve lançar a exception EstadoNaoEncontradoException")
     void DadoUmIdDeUmEstadoQueNaoEstaCadastradoQuandoTentarRecuperarOEstadoPeloIdEntaoDeveLancarAExceptionEstadoNaoEncontradoException() {
-        when(repository.findById(any())).thenThrow(EstadoNaoEncontradoException.class);
+        when(repository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(EstadoNaoEncontradoException.class, () -> service.findById(any()));
+        assertThrows(EstadoNaoEncontradoException.class, () -> service.findById(1L));
     }
 
     @Test
     @DisplayName(value = "Dado um id de um estado que não está cadastrado quando tentar atualizar o estado então deve lançar a exception EstadoNaoEncontradoException")
     void DadoUmIdDeUmEstadoQueNaoEstaCadastradoQuandoTentarAtualizarOEstadoEntaoDeveLancarAExceptionEstadoNaoEncontradoException() {
-        when(repository.findById(any())).thenThrow(EstadoNaoEncontradoException.class);
+        when(repository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(EstadoNaoEncontradoException.class, () -> service.update(any(), estadoCadastrado));
+        assertThrows(EstadoNaoEncontradoException.class, () -> service.update(1L, estadoCadastrado));
 
     }
 
     @Test
     @DisplayName(value = "Dado um id de um estado que não está cadastrado quando tentar excluir o estado então deve lançar a exception EstadoNaoEncontradoException")
     void DadoUmIdDeUmEstadoQueNaoEstaCadastradoQuandoTentarExcluirOEstadoEntaoDeveLancarAExceptionEstadoNaoEncontradoException() {
-        when(repository.findById(1L)).thenThrow(EstadoNaoEncontradoException.class);
+        when(repository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(EstadoNaoEncontradoException.class, () -> service.delete(1L));
     }
@@ -164,30 +147,19 @@ class EstadoServiceTest {
     @Test
     @DisplayName(value = "Dado um nome de estado e uma uf ao tentar recuperar o estado cadastrado então deve retornar os dados do estado")
     void DadoUmNomeDeEstadoEUmaUfAoTentarRecuperarOEstadoCadastradoEntaoDeveRetornarOsDadosDoEstado() {
+        when(repository.findByNomeAndUf(anyString(), anyString())).thenReturn(Optional.of(estadoCadastrado));
 
-        when(repository.findByNomeAndUf(any(), any())).thenReturn(Optional.of(estadoCadastrado));
-
-        Estado estadoCadastrado = service.findByNomeAndUf(anyString(), anyString());
+        Optional<Estado> estadoCadastrado = service.findByNomeAndUf(anyString(), anyString());
 
         Assertions.assertThat(estadoCadastrado).isNotNull();
-        Assertions.assertThat(estadoCadastrado.getId()).isEqualTo(1L);
-        Assertions.assertThat(estadoCadastrado.getNome()).isEqualTo("Ceará");
-        Assertions.assertThat(estadoCadastrado.getUf()).isEqualTo("CE");
-    }
-
-    @Test
-    @DisplayName(value = "Dado um nome de estado e uma uf quando não encontrar o estado cadastrado então deve lançar EstadoNaoEncontradoException")
-    void DadoUmNomeEeEstadEUmaUfQuandoNaoEncontrarOEstadoCadastradoEntaoDeveLancarEstadoNaoEncontradoException() {
-
-        when(repository.findByNomeAndUf(any(), any())).thenReturn(Optional.empty());
-
-        assertThrows(EstadoNaoEncontradoException.class, () -> service.findByNomeAndUf(anyString(), anyString()));
+        Assertions.assertThat(estadoCadastrado.get().getId()).isEqualTo(1L);
+        Assertions.assertThat(estadoCadastrado.get().getNome()).isEqualTo("Ceará");
+        Assertions.assertThat(estadoCadastrado.get().getUf()).isEqualTo("CE");
     }
 
     @Test
     @DisplayName(value = "Dado um EstadoRequestDTO quando tentar converter para a entidade Estado então deve retornar a entidade Estado")
     void DadoUmEstadoRequestDTOQuandoTentarConverterParaAEntidadeEstadoEntaoDeveRetornarAEntidadeEstado() {
-
         when(modelMapper.map(estadoRequestDTO, Estado.class)).thenReturn(estado);
 
         Estado estado = service.toEntity(estadoRequestDTO);
@@ -200,14 +172,11 @@ class EstadoServiceTest {
     @Test
     @DisplayName(value = "Dado um EstadoUpdateRequestDTO quando tentar converter para a entidade Estado então deve retornar a entidade Estado")
     void DadoUmEstadoRequestUpdateDTOQuandoTentarConverterParaAEntidadeEstadoEntaoDeveRetornarAEntidadeEstado() {
-        EstadoUpdateRequestDTO estadoUpdateRequestDTO = new EstadoUpdateRequestDTO(1L, "Ceará", "CE");
+        when(modelMapper.map(estadoRequestDTO, Estado.class)).thenReturn(estadoCadastrado);
 
-        when(modelMapper.map(estadoUpdateRequestDTO, Estado.class)).thenReturn(estadoCadastrado);
-
-        Estado estado = service.toEntity(estadoUpdateRequestDTO);
+        Estado estado = service.toEntity(estadoRequestDTO);
 
         Assertions.assertThat(estado).isNotNull();
-        Assertions.assertThat(estado.getId()).isEqualTo(1L);
         Assertions.assertThat(estado.getNome()).isEqualTo("Ceará");
         Assertions.assertThat(estado.getUf()).isEqualTo("CE");
     }
@@ -215,8 +184,6 @@ class EstadoServiceTest {
     @Test
     @DisplayName(value = "Dado uma entidade Estado ao tentar converter para EstadoResponseDTO então deve retornar EstadoResponseDTO")
     void DadoUmaEntidadeEstadoAoTentarConverterParaEstadoResponseDTOEntaoDeveRetornarEstadoResponseDTO() {
-        EstadoResponseDTO estadoResponseDTO = new EstadoResponseDTO(1L, "Ceará", "CE");
-
         when(modelMapper.map(estadoCadastrado, EstadoResponseDTO.class)).thenReturn(estadoResponseDTO);
 
         EstadoResponseDTO estadoResponse = service.toResponse(estadoCadastrado);
@@ -226,5 +193,4 @@ class EstadoServiceTest {
         Assertions.assertThat(estadoResponse.getNome()).isEqualTo("Ceará");
         Assertions.assertThat(estadoResponse.getUf()).isEqualTo("CE");
     }
-
 }

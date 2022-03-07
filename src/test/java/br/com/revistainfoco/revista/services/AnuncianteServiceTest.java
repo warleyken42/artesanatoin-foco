@@ -23,10 +23,11 @@ import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class AnuncianteServiceTest {
+class AnuncianteServiceTest {
 
     @Mock
     private AnuncianteRepository anuncianteRepository;
@@ -52,11 +53,6 @@ public class AnuncianteServiceTest {
     private Anunciante anunciante;
     private Endereco endereco;
     private Anunciante anuncianteCadastrado;
-    private Cidade cidade;
-    private Estado estado;
-    private EstadoRequestDTO estadoRequestDTO;
-    private CidadeRequestDTO cidadeRequestDTO;
-    private EnderecoRequestDTO enderecoRequestDTO;
     private AnuncianteRequestDTO anuncianteRequestDTO;
     private Contato contato;
     private ContatoResponseDTO contatoResponseDTO;
@@ -65,18 +61,22 @@ public class AnuncianteServiceTest {
 
     @BeforeEach
     void beaforeEach() {
-        estadoCadastrado = new Estado(1L, "São Paulo", "SP");
+        EstadoRequestDTO estadoRequestDTO = new EstadoRequestDTO("São Paulo", "SP");
+        CidadeRequestDTO cidadeRequestDTO = new CidadeRequestDTO("Jaguaribe", estadoRequestDTO);
+        EnderecoRequestDTO enderecoRequestDTO = new EnderecoRequestDTO("Rua Cidade Lion", cidadeRequestDTO, "74185296", "184", "Apto: 32", "Jardim Anny");
+        ContatoRequestDTO contatoRequestDTO = new ContatoRequestDTO("Ana Maria", "Braga", "112233445566", "ana@mail.com");
+        anuncianteRequestDTO = new AnuncianteRequestDTO("87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", enderecoRequestDTO, "warley-ft@hotmail.com", "www.revista_in_foco.com", contatoRequestDTO);
+
         cidadeCadastrada = new Cidade(1L, "Guarulhos", estadoCadastrado);
+        estadoCadastrado = new Estado(1L, "São Paulo", "SP");
         contatoResponseDTO = new ContatoResponseDTO(1L, "Ana Maria", "Braga", "112233445566", "ana@mail.com");
         contato = new Contato(1L, "Ana Maria", "Braga", "112233445566", "ana@mail.com");
-        estado = new Estado(1L, "São Paulo", "SP");
-        cidade = new Cidade(null, "Jaguaribe", estado);
+
+        Estado estado = new Estado(1L, "São Paulo", "SP");
+        Cidade cidade = new Cidade(null, "Jaguaribe", estado);
         endereco = new Endereco(1L, "Rua Cidade Lion", cidade, "74185296", "184", "Apto: 32", "Jardim Anny");
         anunciante = new Anunciante(1L, "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", endereco, "warley-ft@hotmail.com", "www.revista_in_foco.com", contato);
         anuncianteCadastrado = new Anunciante(1L, "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", endereco, "warley-ft@hotmail.com", "www.revista_in_foco.com", contato);
-        enderecoRequestDTO = new EnderecoRequestDTO("Rua Cidade Lion", cidadeRequestDTO, "74185296", "184", "Apto: 32", "Jardim Anny");
-        cidadeRequestDTO = new CidadeRequestDTO("Jaguaribe", estadoRequestDTO);
-        estadoRequestDTO = new EstadoRequestDTO("São Paulo", "SP");
     }
 
     @Test
@@ -92,10 +92,10 @@ public class AnuncianteServiceTest {
 
         List<Anunciante> anunciantesCadastrados = anuncianteService.findAll();
 
-        Assertions.assertThat(anunciantesCadastrados).isNotNull();
-        Assertions.assertThat(anunciantesCadastrados).isNotEmpty();
-        Assertions.assertThat(anunciantesCadastrados.size()).isEqualTo(3);
-
+        Assertions.assertThat(anunciantesCadastrados)
+                .isNotNull()
+                .isNotEmpty()
+                .hasSize(3);
     }
 
     @Test
@@ -121,16 +121,13 @@ public class AnuncianteServiceTest {
     @DisplayName(value = "Dado um anunciante quando tentar cadastrar então deve retornar os dados do anunciante cadastrado")
     void DadoUmAnuncianteQuandoTentarCadastrarEntaoDeveRetornarOsDadosDoAnuncianteCadastrado() {
 
-        Endereco enderecoCadastrado = new Endereco(1L, "Rua Cidade Lion", cidadeCadastrada, "07094190", "184", "Apto 32", "Jardim Anny");
-        Anunciante anunciante = new Anunciante(null, "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", enderecoCadastrado, "warley-ft@hotmail.com", "www.revista_in_foco.com", contato);
-        Anunciante anuncianteCriado = new Anunciante(1L, "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", enderecoCadastrado, "warley-ft@hotmail.com", "www.revista_in_foco.com", contato);
+        when(estadoService.findByNomeAndUf("São Paulo", "SP")).thenReturn(Optional.of(estadoCadastrado));
+        when(cidadeService.findByNome(any())).thenReturn(Optional.of(cidadeCadastrada));
+        when(contatoService.findByCelular(any())).thenReturn(Optional.of(contato));
+        when(anuncianteRepository.findByCnpj(anyString())).thenReturn(Optional.empty());
+        when(anuncianteRepository.save(anunciante)).thenReturn(anuncianteCadastrado);
 
-        when(estadoService.findByNomeAndUf("São Paulo", "SP")).thenReturn(estadoCadastrado);
-        when(cidadeService.findByNome(any())).thenReturn(cidadeCadastrada);
-        when(anuncianteRepository.save(anunciante)).thenReturn(anuncianteCriado);
-        when(contatoService.findByCelular(any())).thenReturn(contato);
-        anuncianteCadastrado = anuncianteService.create(anunciante);
-
+        Anunciante anuncianteCadastrado = anuncianteService.create(anunciante);
 
         Assertions.assertThat(anuncianteCadastrado).isNotNull();
         Assertions.assertThat(anuncianteCadastrado.getId()).isEqualTo(1L);
@@ -140,7 +137,6 @@ public class AnuncianteServiceTest {
         Assertions.assertThat(anuncianteCadastrado.getEndereco()).isNotNull();
         Assertions.assertThat(anuncianteCadastrado.getEmail()).isEqualTo("warley-ft@hotmail.com");
         Assertions.assertThat(anuncianteCadastrado.getSite()).isEqualTo("www.revista_in_foco.com");
-
     }
 
     @Test
@@ -150,8 +146,8 @@ public class AnuncianteServiceTest {
         Anunciante anuncianteComNovosDados = new Anunciante(1L, "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", endereco, "warley-ft@hotmail.com", "www.revista_in_foco.com", contato);
 
 
-        when(estadoService.findByNomeAndUf(any(), any())).thenReturn(estadoCadastrado);
-        when(cidadeService.findByNome(any())).thenReturn(cidadeCadastrada);
+        when(estadoService.findByNomeAndUf(any(), any())).thenReturn(Optional.of(estadoCadastrado));
+        when(cidadeService.findByNome(any())).thenReturn(Optional.of(cidadeCadastrada));
         when(anuncianteRepository.findById(1L)).thenReturn(Optional.of(anuncianteCadastrado));
         when(anuncianteRepository.save(anuncianteCadastrado)).thenReturn(anuncianteComNovosDados);
 
@@ -180,7 +176,7 @@ public class AnuncianteServiceTest {
     @DisplayName(value = "Dado um id de um anunciante que não está cadastrado quando tentar recuperar o anunciante pelo id então deve lançar a exception AnuncianteNaoEncontradoException")
     void DadoUmIdDeUmAnuncianteQueNaoEstaCadastradoQuandoTentarRecuperarOAnunciantePeloIdEntaoDeveLancarAExceptionAnuncianteNaoEncontradoException() {
 
-        when(anuncianteRepository.findById(ArgumentMatchers.any())).thenThrow(AnuncianteNaoEncontradoException.class);
+        when(anuncianteRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.empty());
 
         assertThrows(AnuncianteNaoEncontradoException.class, () -> anuncianteService.findById(1L));
     }
@@ -189,7 +185,7 @@ public class AnuncianteServiceTest {
     @DisplayName(value = "Dado um id de um anunciante que não está cadastrado quando tentar atualizar o anunciante pelo id então deve lançar a exception AnuncianteNaoEncontradoException")
     void DadoUmIdDeUmAnuncianteQueNaoEstaCadastradoQuandoTentarAtualizarOAnunciantePeloIdEntaoDeveLancarAExceptionAnuncianteNaoEncontradoException() {
 
-        when(anuncianteRepository.findById(1L)).thenThrow(AnuncianteNaoEncontradoException.class);
+        when(anuncianteRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(AnuncianteNaoEncontradoException.class, () -> anuncianteService.update(1L, new Anunciante()));
     }
@@ -198,7 +194,7 @@ public class AnuncianteServiceTest {
     @DisplayName(value = "Dado um id de um anunciante que não está cadastrado quando tentar excluir o anunciante pelo id então deve lançar a exception AnuncianteNaoEncontradoException")
     void DadoUmIdDeUmAnuncianteQueNaoEstaCadastradoQuandoTentarExcluirOAnunciantePeloIdEntaoDeveLancarAExceptionAnuncianteNaoEncontradoException() {
 
-        when(anuncianteRepository.findById(ArgumentMatchers.any())).thenThrow(AnuncianteNaoEncontradoException.class);
+        when(anuncianteRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.empty());
 
         assertThrows(AnuncianteNaoEncontradoException.class, () -> anuncianteService.delete(1L));
     }
@@ -224,14 +220,9 @@ public class AnuncianteServiceTest {
     @Test
     @DisplayName(value = "Dado um AnuncianteUpdateRequestDTO quando tentar converter para a entidade Anunciante então deve retornar a entidade anunciante")
     void DadoUmAnuncianteRequestUpdateDTOQuandoTentarConverterParaAEntidadeAnuncianteEntaoDeveRetornarAEntidadeAnunciante() {
-        EstadoUpdateRequestDTO estadoUpdateRequestDTO = new EstadoUpdateRequestDTO(1L, "Ceará", "CE");
-        CidadeUpdateRequestDTO cidadeUpdateRequestDTO = new CidadeUpdateRequestDTO(1L, "Jaguaribe", estadoUpdateRequestDTO);
-        EnderecoUpdateRequestDTO enderecoUpdateRequestDTO = new EnderecoUpdateRequestDTO(1L, "Rua Cidade Lion", cidadeUpdateRequestDTO, "74185296", "184", "Apto: 32", "Jardim Anny");
-        AnuncianteUpdateRequestDTO anuncianteUpdateRequestDTO = new AnuncianteUpdateRequestDTO(1L, "87571657000197", "Warley Kennedy Figueiredo", "REVISTA_IN_FOCO", enderecoUpdateRequestDTO, "warley-ft@hotmail.com", "www.revista_in_foco.com");
+        when(modelMapper.map(anuncianteRequestDTO, Anunciante.class)).thenReturn(anuncianteCadastrado);
 
-        when(modelMapper.map(anuncianteUpdateRequestDTO, Anunciante.class)).thenReturn(anuncianteCadastrado);
-
-        Anunciante anunciante = anuncianteService.toEntity(anuncianteUpdateRequestDTO);
+        Anunciante anunciante = anuncianteService.toEntity(anuncianteRequestDTO);
 
         Assertions.assertThat(anunciante).isNotNull();
         Assertions.assertThat(anunciante.getId()).isEqualTo(1L);

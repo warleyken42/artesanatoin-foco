@@ -1,7 +1,6 @@
 package br.com.revistainfoco.revista.resources;
 
 import br.com.revistainfoco.revista.domain.dto.request.EstadoRequestDTO;
-import br.com.revistainfoco.revista.domain.dto.request.EstadoUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.EstadoResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Estado;
 import br.com.revistainfoco.revista.errors.ErrorDetail;
@@ -51,11 +50,9 @@ public class EstadoResource {
             @ApiResponse(responseCode = "204", description = "Não há estados cadastrados", content = @Content(schema = @Schema()))
     })
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> findAll() {
+    public ResponseEntity<List<EstadoResponseDTO>> findAll() {
         List<EstadoResponseDTO> estadosCadastrados = new ArrayList<>();
-        service.findAll().forEach(estado -> {
-            estadosCadastrados.add(service.toResponse(estado));
-        });
+        service.findAll().forEach(estado -> estadosCadastrados.add(service.toResponse(estado)));
         if (estadosCadastrados.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -81,8 +78,8 @@ public class EstadoResource {
             @ApiResponse(responseCode = "422", description = "Erro de validação", content = @Content(schema = @Schema(implementation = ErrorDetail.class)))
     })
     @PutMapping(value = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<EstadoResponseDTO> update(@PathVariable("id") Long id, @RequestBody @Valid EstadoUpdateRequestDTO estadoUpdateRequestDTO) {
-        Estado estadoAtualizado = service.update(id, service.toEntity(estadoUpdateRequestDTO));
+    public ResponseEntity<EstadoResponseDTO> update(@PathVariable("id") Long id, @RequestBody @Valid EstadoRequestDTO estadoRequestDTO) {
+        Estado estadoAtualizado = service.update(id, service.toEntity(estadoRequestDTO));
         return new ResponseEntity<>(service.toResponse(estadoAtualizado), HttpStatus.OK);
     }
 
@@ -93,7 +90,7 @@ public class EstadoResource {
             @ApiResponse(responseCode = "415", description = "Media não suportada", content = @Content(schema = @Schema(implementation = ErrorDetail.class)))
     })
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }

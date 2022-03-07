@@ -14,12 +14,12 @@ import java.io.Serializable;
 @Tag(name = "cidades", description = "Cadastro de Cidades")
 public class CidadeResponseDTO implements Serializable {
 
-    @Schema(description = "ID da cidade", example = "1")
+    @Schema(description = "ID da cidade cadastrada", example = "1")
     private Long id;
 
-    @Schema(description = "Nome da cidade", example = "Guarulhos")
+    @Schema(description = "Nome da cidade cadastrada", example = "Guarulhos")
     private String nome;
 
-    @Schema(description = "Estado em que a cidade se encontra")
+    @Schema(description = "Estado em que a cidade cadastrada se encontra")
     private EstadoResponseDTO estado;
 }

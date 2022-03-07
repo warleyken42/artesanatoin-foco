@@ -6,18 +6,20 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Tag(name = "estados", description = "Cadastro de Estados")
-public class EstadoResponseDTO {
+public class EstadoResponseDTO implements Serializable {
 
-    @Schema(description = "ID do estado", example = "1", required = true)
+    @Schema(description = "ID do estado cadastrado", example = "1")
     private Long id;
 
-    @Schema(description = "Nome do estado", example = "São Paulo", required = true)
+    @Schema(description = "Nome do estado cadastrado", example = "São Paulo")
     private String nome;
 
-    @Schema(description = "Unidade Federativa do estado", example = "SP", required = true)
+    @Schema(description = "Unidade Federativa do estado cadastrado", example = "SP")
     private String uf;
 }

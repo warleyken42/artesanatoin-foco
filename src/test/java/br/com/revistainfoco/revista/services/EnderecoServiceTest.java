@@ -1,6 +1,8 @@
 package br.com.revistainfoco.revista.services;
 
-import br.com.revistainfoco.revista.domain.dto.request.*;
+import br.com.revistainfoco.revista.domain.dto.request.CidadeRequestDTO;
+import br.com.revistainfoco.revista.domain.dto.request.EnderecoRequestDTO;
+import br.com.revistainfoco.revista.domain.dto.request.EstadoRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.CidadeResponseDTO;
 import br.com.revistainfoco.revista.domain.dto.response.EnderecoResponseDTO;
 import br.com.revistainfoco.revista.domain.dto.response.EstadoResponseDTO;
@@ -44,22 +46,20 @@ class EnderecoServiceTest {
     private EnderecoService enderecoService;
 
     private Endereco endereco;
-    private Cidade cidade;
+    private Cidade cidadeCadastrada;
     private Endereco enderecoCadastrado;
-    private Estado estado;
-    private EstadoRequestDTO estadoRequestDTO;
-    private CidadeRequestDTO cidadeRequestDTO;
     private EnderecoRequestDTO enderecoRequestDTO;
-
 
     @BeforeEach
     void beaforeEach() {
-        estado = new Estado(1L, "São Paulo", "SP");
-        cidade = new Cidade(null, "Jaguaribe", estado);
-        endereco = new Endereco(1L, "Rua Cidade Lion", cidade, "74185296", "184", "Apto: 32", "Jardim Anny");
-        enderecoCadastrado = new Endereco(1L, "Rua Cidade Lion", cidade, "74185296", "184", "Apto: 32", "Jardim Anny");
-        cidadeRequestDTO = new CidadeRequestDTO("Guarulhos", estadoRequestDTO);
-        estadoRequestDTO = new EstadoRequestDTO("São Paulo", "SP");
+        Estado estado = new Estado(1L, "São Paulo", "SP");
+        cidadeCadastrada = new Cidade(1L, "Jaguaribe", estado);
+        endereco = new Endereco(null, "Rua Cidade Lion", cidadeCadastrada, "74185296", "184", "Apto: 32", "Jardim Anny");
+        enderecoCadastrado = new Endereco(1L, "Rua Cidade Lion", cidadeCadastrada, "74185296", "184", "Apto 32", "Jardim Anny");
+
+        EstadoRequestDTO estadoRequestDTO = new EstadoRequestDTO("São Paulo", "SP");
+        CidadeRequestDTO cidadeRequestDTO = new CidadeRequestDTO("Guarulhos", estadoRequestDTO);
+        enderecoRequestDTO = new EnderecoRequestDTO("Rua Cidade Lion", cidadeRequestDTO, "74185296", "184", "Apto 32", "Jardim Anny");
     }
 
     @Test
@@ -76,9 +76,10 @@ class EnderecoServiceTest {
 
         List<Endereco> enderecosCadastrados = enderecoService.findAll();
 
-        Assertions.assertThat(enderecosCadastrados).isNotNull();
-        Assertions.assertThat(enderecosCadastrados).isNotEmpty();
-        Assertions.assertThat(enderecosCadastrados.size()).isEqualTo(3);
+        Assertions.assertThat(enderecosCadastrados)
+                .isNotNull()
+                .isNotEmpty()
+                .hasSize(3);
     }
 
 
@@ -96,7 +97,7 @@ class EnderecoServiceTest {
         Assertions.assertThat(enderecoCadastrado.getCidade()).isNotNull();
         Assertions.assertThat(enderecoCadastrado.getCep()).isEqualTo("74185296");
         Assertions.assertThat(enderecoCadastrado.getNumero()).isEqualTo("184");
-        Assertions.assertThat(enderecoCadastrado.getComplemento()).isEqualTo("Apto: 32");
+        Assertions.assertThat(enderecoCadastrado.getComplemento()).isEqualTo("Apto 32");
         Assertions.assertThat(enderecoCadastrado.getBairro()).isEqualTo("Jardim Anny");
 
 
@@ -105,29 +106,9 @@ class EnderecoServiceTest {
     @Test
     @DisplayName(value = "Dado um endereco quando tentar cadastrar entao deve retornar os dados do endereço cadastrado")
     void DadoUmEnderecoQuandoTentarCadastrarEntaoDeveRetornarOsDadosDoEnderecoCadastrado() {
-        Estado estadoCadastrado = new Estado(1L, "São Paulo", "SP");
-        Cidade cidadeCadastrada = new Cidade(1L, "Guarulhos", estadoCadastrado);
-        Endereco endereco = new Endereco(
-                null,
-                "Rua Cidade Lion",
-                cidadeCadastrada,
-                "07094190",
-                "184",
-                "Apto 32",
-                "Jardim Anny"
-        );
 
-        Endereco enderecoCriado = new Endereco(
-                1L,
-                "Rua Cidade Lion",
-                cidadeCadastrada,
-                "07094190",
-                "184",
-                "Apto 32",
-                "Jardim Anny"
-        );
-
-        when(enderecoRepository.save(endereco)).thenReturn(enderecoCriado);
+        when(cidadeService.findById(1L)).thenReturn(cidadeCadastrada);
+        when(enderecoRepository.save(endereco)).thenReturn(enderecoCadastrado);
 
         Endereco enderecoCadastrado = enderecoService.create(endereco);
 
@@ -136,13 +117,13 @@ class EnderecoServiceTest {
         Assertions.assertThat(enderecoCadastrado.getLogradouro()).isEqualTo("Rua Cidade Lion");
 
         Assertions.assertThat(enderecoCadastrado.getCidade().getId()).isEqualTo(1L);
-        Assertions.assertThat(enderecoCadastrado.getCidade().getNome()).isEqualTo("Guarulhos");
+        Assertions.assertThat(enderecoCadastrado.getCidade().getNome()).isEqualTo("Jaguaribe");
 
         Assertions.assertThat(enderecoCadastrado.getCidade().getEstado().getId()).isEqualTo(1L);
         Assertions.assertThat(enderecoCadastrado.getCidade().getEstado().getNome()).isEqualTo("São Paulo");
         Assertions.assertThat(enderecoCadastrado.getCidade().getEstado().getUf()).isEqualTo("SP");
 
-        Assertions.assertThat(enderecoCadastrado.getCep()).isEqualTo("07094190");
+        Assertions.assertThat(enderecoCadastrado.getCep()).isEqualTo("74185296");
         Assertions.assertThat(enderecoCadastrado.getNumero()).isEqualTo("184");
         Assertions.assertThat(enderecoCadastrado.getComplemento()).isEqualTo("Apto 32");
         Assertions.assertThat(enderecoCadastrado.getBairro()).isEqualTo("Jardim Anny");
@@ -152,12 +133,12 @@ class EnderecoServiceTest {
     @DisplayName(value = "Dado um endereço para atualizar quando tentar atualizar os dados então deve retornar o endereço com os dados atualizados")
     void DadoUmEnderecoParaAtualizarQuandoTentarAtualizarOsDadosEntaoDeveRetornarOEnderecoComOsDadosAtualizados() {
 
-        Endereco enderecoComNovosDados = new Endereco(1L, "Cidade Lion", cidade, "17261414", "24", "", "Jagaraí");
+        Endereco enderecoComNovosDados = new Endereco(1L, "Cidade Lion", cidadeCadastrada, "17261414", "24", "", "Jagaraí");
 
         when(enderecoRepository.findById(1L)).thenReturn(Optional.of(enderecoCadastrado));
-        when(enderecoRepository.save(enderecoCadastrado)).thenReturn(enderecoComNovosDados);
+        when(enderecoRepository.save(enderecoComNovosDados)).thenReturn(enderecoComNovosDados);
 
-        Endereco enderecoAtualizado = enderecoService.update(1L, endereco);
+        Endereco enderecoAtualizado = enderecoService.update(1L, enderecoComNovosDados);
 
         Assertions.assertThat(enderecoAtualizado).isNotNull();
         Assertions.assertThat(enderecoAtualizado.getLogradouro()).isEqualTo("Cidade Lion");
@@ -177,7 +158,7 @@ class EnderecoServiceTest {
     @DisplayName(value = "Dado um id de um endereço que não está cadastrado quando tentar recuperar o endereço pelo id então deve lançar a exception EnderecoNaoEncontradoException")
     void DadoUmIdDeUmEnderecoQueNaoEstaCadastradoQuandoTentarRecuperarOEnderecoPeloIdEntaoDeveLancarAExceptionEnderecoNaoEncontradoException() {
 
-        when(enderecoRepository.findById(ArgumentMatchers.any())).thenThrow(EnderecoNaoEncontradoException.class);
+        when(enderecoRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.empty());
 
         assertThrows(EnderecoNaoEncontradoException.class, () -> enderecoService.findById(1L));
     }
@@ -186,7 +167,7 @@ class EnderecoServiceTest {
     @DisplayName(value = "Dado um id de um endereço que não está cadastrado quando tentar atualizar o endereço pelo id então deve lançar a exception EnderecoNaoEncontradoException")
     void DadoUmIdDeUmEnderecoQueNaoEstaCadastradoQuandoTentarAtualizarOEnderecoPeloIdEntaoDeveLancarAExceptionEnderecoNaoEncontradoException() {
 
-        when(enderecoRepository.findById(1L)).thenThrow(EnderecoNaoEncontradoException.class);
+        when(enderecoRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(EnderecoNaoEncontradoException.class, () -> enderecoService.update(1L, new Endereco()));
     }
@@ -195,7 +176,7 @@ class EnderecoServiceTest {
     @DisplayName(value = "Dado um id de um endereço que não está cadastrado quando tentar excluir o endereço pelo id então deve lançar a exception EnderecoNaoEncontradoException")
     void DadoUmIdDeUmEnderecoQueNaoEstaCadastradoQuandoTentarExcluirOEnderecoPeloIdEntaoDeveLancarAExceptionEnderecoNaoEncontradoException() {
 
-        when(enderecoRepository.findById(ArgumentMatchers.any())).thenThrow(EnderecoNaoEncontradoException.class);
+        when(enderecoRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.empty());
 
         assertThrows(EnderecoNaoEncontradoException.class, () -> enderecoService.delete(1L));
     }
@@ -204,7 +185,7 @@ class EnderecoServiceTest {
     @DisplayName(value = "Dado um EnderecoRequestDTO quando tentar converter para a entidade Endereco então deve retornar a entidade endereco")
     void DadoUmEnderecoRequestDTOQuandoTentarConverterParaAEntidadeEnderecoEntaoDeveRetornarAEntidadeEndereco() {
 
-        when(modelMapper.map(enderecoRequestDTO, Endereco.class)).thenReturn(endereco);
+        when(modelMapper.map(enderecoRequestDTO, Endereco.class)).thenReturn(enderecoCadastrado);
 
         Endereco endereco = enderecoService.toEntity(enderecoRequestDTO);
 
@@ -214,21 +195,16 @@ class EnderecoServiceTest {
         Assertions.assertThat(endereco.getCidade()).isNotNull();
         Assertions.assertThat(endereco.getCep()).isEqualTo("74185296");
         Assertions.assertThat(endereco.getNumero()).isEqualTo("184");
-        Assertions.assertThat(endereco.getComplemento()).isEqualTo("Apto: 32");
+        Assertions.assertThat(endereco.getComplemento()).isEqualTo("Apto 32");
         Assertions.assertThat(endereco.getBairro()).isEqualTo("Jardim Anny");
     }
 
     @Test
     @DisplayName(value = "Dado um EnderecoUpdateRequestDTO quando tentar converter para a entidade Endereco então deve retornar a entidade endereco")
     void DadoUmEnderecoRequestUpdateDTOQuandoTentarConverterParaAEntidadeEnderecoEntaoDeveRetornarAEntidadeEndereco() {
-        EstadoUpdateRequestDTO estadoUpdateRequestDTO = new EstadoUpdateRequestDTO(1L, "Ceará", "CE");
-        CidadeUpdateRequestDTO cidadeUpdateRequestDTO = new CidadeUpdateRequestDTO(1L, "Jaguaribe", estadoUpdateRequestDTO);
-        EnderecoUpdateRequestDTO enderecoUpdateRequestDTO = new EnderecoUpdateRequestDTO(1L, "Rua Cidade Lion", cidadeUpdateRequestDTO, "74185296", "184", "Apto: 32", "Jardim Anny");
+        when(modelMapper.map(enderecoRequestDTO, Endereco.class)).thenReturn(enderecoCadastrado);
 
-
-        when(modelMapper.map(enderecoUpdateRequestDTO, Endereco.class)).thenReturn(enderecoCadastrado);
-
-        Endereco endereco = enderecoService.toEntity(enderecoUpdateRequestDTO);
+        Endereco endereco = enderecoService.toEntity(enderecoRequestDTO);
 
         Assertions.assertThat(endereco).isNotNull();
         Assertions.assertThat(endereco.getId()).isEqualTo(1L);
@@ -236,7 +212,7 @@ class EnderecoServiceTest {
         Assertions.assertThat(endereco.getCidade()).isNotNull();
         Assertions.assertThat(endereco.getCep()).isEqualTo("74185296");
         Assertions.assertThat(endereco.getNumero()).isEqualTo("184");
-        Assertions.assertThat(endereco.getComplemento()).isEqualTo("Apto: 32");
+        Assertions.assertThat(endereco.getComplemento()).isEqualTo("Apto 32");
         Assertions.assertThat(endereco.getBairro()).isEqualTo("Jardim Anny");
     }
 
@@ -260,5 +236,4 @@ class EnderecoServiceTest {
         Assertions.assertThat(enderecoResponse.getComplemento()).isEqualTo("Apto: 32");
         Assertions.assertThat(enderecoResponse.getBairro()).isEqualTo("Jardim Anny");
     }
-
 }

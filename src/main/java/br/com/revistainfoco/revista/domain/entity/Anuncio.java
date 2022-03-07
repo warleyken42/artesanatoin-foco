@@ -13,10 +13,10 @@ public class Anuncio implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "formato")
+    @Column(name = "formato", length = 2, columnDefinition = "VARCHAR(2)", nullable = false)
     private String tamanho;
 
-    @Column(name = "valor")
+    @Column(name = "valor", columnDefinition = "DECIMAL(10,2)", nullable = false, precision = 2, scale = 2)
     private BigDecimal valor;
 
     public Anuncio() {

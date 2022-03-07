@@ -50,11 +50,9 @@ public class AnuncianteResource {
             @ApiResponse(responseCode = "204", description = "Não há anunciantes cadastrados", content = @Content(schema = @Schema()))
     })
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> findAll() {
+    public ResponseEntity<List<AnuncianteResponseDTO>> findAll() {
         List<AnuncianteResponseDTO> anunciantesCadastrados = new ArrayList<>();
-        service.findAll().forEach(endereco -> {
-            anunciantesCadastrados.add(service.toResponse(endereco));
-        });
+        service.findAll().forEach(endereco -> anunciantesCadastrados.add(service.toResponse(endereco)));
         if (anunciantesCadastrados.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -92,9 +90,8 @@ public class AnuncianteResource {
             @ApiResponse(responseCode = "415", description = "Media não suportada", content = @Content(schema = @Schema(implementation = ErrorDetail.class)))
     })
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
-
 }

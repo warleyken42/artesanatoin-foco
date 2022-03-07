@@ -26,9 +26,9 @@ public class EnderecoRequestDTO implements Serializable {
     @Schema(description = "Número do endereço", example = "184", required = true)
     private String numero;
 
-    @Schema(description = "Complemento do endereço", example = "Apto 32", required = true)
+    @Schema(description = "Complemento do endereço", example = "Apto 32")
     private String complemento;
 
-    @Schema(description = "Bairro onde está localizado o endereço", example = "Jardim Anny")
+    @Schema(description = "Bairro onde está localizado o endereço", example = "Jardim Anny", required = true)
     private String bairro;
 }

@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "5fcc66ae-3bc3-4620-aef7-d883a2a070ca",
+		"_postman_id": "c1c1a5db-2363-48a7-9b89-794dc1332c41",
 		"name": "revista in foco",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -15,7 +15,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"nome\": \"São Paulo\",\n    \"uf\": \"SP\"\n}",
+							"raw": "{\n    \"nome\": \"Meu Estado\",\n    \"uf\": \"ME\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -79,7 +79,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": 24,\n    \"nome\": \"Acre\",\n    \"uf\": \"AC\"\n}",
+							"raw": "{\n    \"nome\": \"Meu Estado 2\",\n    \"uf\": \"M2\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -131,7 +131,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"nome\": \"ABCD\",\n    \"estado\": {\n        \"nome\": \"São Paulo\",\n        \"uf\": \"SP\"\n    }\n}",
+							"raw": "{\n    \"nome\": \"Lins 2\",\n    \"estado\": {\n        \"nome\": \"Ceará\",\n        \"uf\": \"CE\"\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -195,7 +195,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": 8,\n    \"nome\": \"Lins 34\",\n    \"estado\": {\n        \"nome\": \"Rio de Janeiro\",\n        \"uf\": \"RJ\"\n    }\n}",
+							"raw": "{\n    \"nome\": \"Lins 2\",\n    \"estado\": {\n        \"nome\": \"Ceará\",\n        \"uf\": \"CE\"\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -247,7 +247,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"logradouro\": \"Rua Cidade Lion\",\n    \"cidade\": {\n        \"nome\": \"Lins\",\n        \"estado\": {\n            \"id\": 24,\n            \"nome\": \"São Paulo\",\n            \"uf\": \"SP\"\n        }\n    },\n    \"cep\": \"07094190\",\n    \"numero\": \"184\",\n    \"complemento\": \"Apto 32\",\n    \"bairro\": \"Jardim Anny\"\n}",
+							"raw": "{\n    \"logradouro\": \"Rua Cidade Lion\",\n    \"cidade\": {\n        \"nome\": \"Guarulhos\",\n        \"estado\": {\n            \"id\": 24,\n            \"nome\": \"São Paulo\",\n            \"uf\": \"SP\"\n        }\n    },\n    \"cep\": \"07094190\",\n    \"numero\": \"184\",\n    \"complemento\": \"Apto 32\",\n    \"bairro\": \"Jardim Anny\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -331,7 +331,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": 1,\n    \"logradouro\": \"Rua Cidade Lion 322\",\n    \"cidade\": {\n        \"id\": 1,\n        \"nome\": \"Guarulhos\",\n        \"estado\": {\n            \"id\": 18,\n            \"nome\": \"São Paulo\",\n            \"uf\": \"SP\"\n        }\n    },\n    \"cep\": \"07094192\",\n    \"numero\": \"184\",\n    \"complemento\": \"Apto 32\",\n    \"bairro\": \"Jardim Anny \"\n}",
+							"raw": "{\n    \"logradouro\": \"Rua Cidade Lion 322\",\n    \"cidade\": {\n        \"id\": 1,\n        \"nome\": \"Guarulhos 2\",\n        \"estado\": {\n            \"id\": 24,\n            \"nome\": \"São Paulo\",\n            \"uf\": \"SP\"\n        }\n    },\n    \"cep\": \"07094192\",\n    \"numero\": \"184\",\n    \"complemento\": \"Apto 32\",\n    \"bairro\": \"Jardim Anny \"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -359,7 +359,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": 1,\n    \"logradouro\": \"Rua Cidade Lion 2\",\n    \"cidade\": {\n        \"nome\": \"XTP\",\n        \"estado\": {\n            \"id\": 24,\n            \"nome\": \"São Paulo\",\n            \"uf\": \"SP\"\n        }\n    },\n    \"cep\": \"07094192\",\n    \"numero\": \"182\",\n    \"complemento\": \"Apto 322\",\n    \"bairro\": \"Jardim Anny 2\"\n}",
+							"raw": "{\n    \"logradouro\": \"Rua Cidade Lion 2\",\n    \"cidade\": {\n        \"nome\": \"XTP\",\n        \"estado\": {\n            \"id\": 24,\n            \"nome\": \"São Paulo\",\n            \"uf\": \"SP\"\n        }\n    },\n    \"cep\": \"07094192\",\n    \"numero\": \"182\",\n    \"complemento\": \"Apto 322\",\n    \"bairro\": \"Jardim Anny 2\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -487,7 +487,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"id\": 1,\r\n    \"cnpj\": \"99172719000101\",\r\n    \"razaoSocial\": \"Warley Kennedy Figueiredo\",\r\n    \"nomeFantasia\": \"REVISTA_IN_FOCO\",\r\n    \"endereco\": {\r\n        \"id\": 1,\r\n        \"logradouro\": \"Rua Cidade Lion\",\r\n        \"cidade\": {\r\n            \"id\": 1,\r\n            \"nome\": \"Guarulhos\",\r\n            \"estado\": {\r\n                \"id\": 18,\r\n                \"nome\": \"Rio de Janeiro\",\r\n                \"uf\": \"RJ\"\r\n            }\r\n        },\r\n        \"cep\": \"07094190\",\r\n        \"numero\": \"184\",\r\n        \"complemento\": \"Apto 32\",\r\n        \"bairro\": \"Jardim Anny\"\r\n    },\r\n    \"email\": \"warley-ft@hotmail.com\",\r\n    \"site\": \"www.revista_in_foco.com\",\r\n    \"contato\": {\r\n        \"id\": 1,\r\n        \"nome\": \"Maria José\",\r\n        \"sobrenome\": \"da Silva\",\r\n        \"celular\": \"11951472366\",\r\n        \"email\": \"jose.da.silva@mail.com\"\r\n    }\r\n}",
+							"raw": "{\r\n    \"cnpj\": \"99172719000101\",\r\n    \"razaoSocial\": \"Warley Kennedy Figueiredo\",\r\n    \"nomeFantasia\": \"REVISTA_IN_FOCO\",\r\n    \"endereco\": {\r\n        \"id\": 1,\r\n        \"logradouro\": \"Rua Cidade Lion\",\r\n        \"cidade\": {\r\n            \"id\": 1,\r\n            \"nome\": \"Guarulhos\",\r\n            \"estado\": {\r\n                \"id\": 18,\r\n                \"nome\": \"Rio de Janeiro\",\r\n                \"uf\": \"RJ\"\r\n            }\r\n        },\r\n        \"cep\": \"07094190\",\r\n        \"numero\": \"184\",\r\n        \"complemento\": \"Apto 32\",\r\n        \"bairro\": \"Jardim Anny\"\r\n    },\r\n    \"email\": \"warley-ft@hotmail.com\",\r\n    \"site\": \"www.revista_in_foco.com\",\r\n    \"contato\": {\r\n        \"id\": 1,\r\n        \"nome\": \"Maria José\",\r\n        \"sobrenome\": \"da Silva\",\r\n        \"celular\": \"11951472366\",\r\n        \"email\": \"jose.da.silva@mail.com\"\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -603,7 +603,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"id\": 1,\r\n    \"tamanho\": \"A0\",\r\n    \"valor\": 60.0\r\n}",
+							"raw": "{\r\n    \"tamanho\": \"A0\",\r\n    \"valor\": 60.0\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"

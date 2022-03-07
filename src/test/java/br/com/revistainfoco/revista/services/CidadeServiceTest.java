@@ -1,9 +1,7 @@
 package br.com.revistainfoco.revista.services;
 
 import br.com.revistainfoco.revista.domain.dto.request.CidadeRequestDTO;
-import br.com.revistainfoco.revista.domain.dto.request.CidadeUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.request.EstadoRequestDTO;
-import br.com.revistainfoco.revista.domain.dto.request.EstadoUpdateRequestDTO;
 import br.com.revistainfoco.revista.domain.dto.response.CidadeResponseDTO;
 import br.com.revistainfoco.revista.domain.dto.response.EstadoResponseDTO;
 import br.com.revistainfoco.revista.domain.entity.Cidade;
@@ -27,7 +25,6 @@ import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,17 +41,19 @@ class CidadeServiceTest {
 
     @InjectMocks
     private CidadeService cidadeService;
-
     private Cidade cidade;
-    private Estado estado;
+    private Estado estadoCadastrado;
     private Cidade cidadeCadastrada;
     private CidadeRequestDTO cidadeRequestDTO;
 
     @BeforeEach
     void beforeEach() {
-        estado = new Estado(1L, "Ceará", "CE");
+        Estado estado = new Estado(1L, "Ceará", "CE");
         cidade = new Cidade(null, "Jaguaribe", estado);
+
+        estadoCadastrado = new Estado(1L, "Ceará", "CE");
         cidadeCadastrada = new Cidade(1L, "Jaguaribe", estado);
+
         EstadoRequestDTO estadoRequestDTO = new EstadoRequestDTO("Ceará", "CE");
         cidadeRequestDTO = new CidadeRequestDTO("Jaguaribe", estadoRequestDTO);
     }
@@ -63,8 +62,9 @@ class CidadeServiceTest {
     @DisplayName(value = "Dado uma cidade quando tentar salvar no banco de dados então deve retornar a cidade salva")
     void DadoUmaCidadeQuandoTentarSalvarNoBancoDeDadosEntaoDeveRetorarACidadeSalva() {
 
-        when(estadoService.findByNomeAndUf(anyString(), anyString())).thenReturn(estado);
-        when(cidadeRepository.save(any())).thenReturn(cidadeCadastrada);
+        when(cidadeRepository.findByNome("Jaguaribe")).thenReturn(Optional.empty());
+        when(estadoService.create(cidade.getEstado())).thenReturn(estadoCadastrado);
+        when(cidadeRepository.save(cidade)).thenReturn(cidadeCadastrada);
 
         Cidade cidadeCadastrada = cidadeService.create(cidade);
 
@@ -90,9 +90,10 @@ class CidadeServiceTest {
 
         List<Cidade> cidadesCadastradas = cidadeService.findAll();
 
-        Assertions.assertThat(cidadesCadastradas).isNotNull();
-        Assertions.assertThat(cidadesCadastradas).isNotEmpty();
-        Assertions.assertThat(cidadesCadastradas.size()).isEqualTo(3);
+        Assertions.assertThat(cidadesCadastradas)
+                .isNotNull()
+                .isNotEmpty()
+                .hasSize(3);
     }
 
     @Test
@@ -115,22 +116,24 @@ class CidadeServiceTest {
     @Test
     @DisplayName("Dado uma cidade para atualizar quando tentar atualizar os dados então deve retornar a cidade com os dados atualizados")
     void DadoUmACidadeParaAtualizarQuandoTentarAtualizarOsDadosEntaoDeveRetornarACidadeComOsDadosAtualizados() {
-        Cidade cidadeComNovosDados = new Cidade(1L, "Jaguaribe 2", estado);
+
+        Estado estadoComDadosAtualizados = new Estado(1L, "São Paulo", "SP");
+        Cidade cidadeComNovosDados = new Cidade(1L, "Guarulhos", estadoComDadosAtualizados);
 
         when(cidadeRepository.findById(1L)).thenReturn(Optional.of(cidadeCadastrada));
-        when(estadoService.findByNomeAndUf(anyString(), anyString())).thenReturn(estado);
+        when(estadoService.findByNomeAndUf(estadoComDadosAtualizados.getNome(), estadoComDadosAtualizados.getUf())).thenReturn(Optional.of(estadoCadastrado));
+        when(estadoService.create(estadoComDadosAtualizados)).thenReturn(estadoComDadosAtualizados);
+        when(cidadeRepository.save(cidadeComNovosDados)).thenReturn(cidadeComNovosDados);
 
-        when(cidadeRepository.save(cidadeCadastrada)).thenReturn(cidadeComNovosDados);
-
-        Cidade cidadeAtualizada = cidadeService.update(1L, cidadeCadastrada);
+        Cidade cidadeAtualizada = cidadeService.update(1L, cidadeComNovosDados);
 
         Assertions.assertThat(cidadeAtualizada).isNotNull();
         Assertions.assertThat(cidadeAtualizada.getId()).isEqualTo(1L);
-        Assertions.assertThat(cidadeAtualizada.getNome()).isEqualTo("Jaguaribe 2");
+        Assertions.assertThat(cidadeAtualizada.getNome()).isEqualTo("Guarulhos");
         Assertions.assertThat(cidadeAtualizada.getEstado()).isNotNull();
         Assertions.assertThat(cidadeAtualizada.getEstado().getId()).isEqualTo(1L);
-        Assertions.assertThat(cidadeAtualizada.getEstado().getUf()).isEqualTo("CE");
-        Assertions.assertThat(cidadeAtualizada.getEstado().getNome()).isEqualTo("Ceará");
+        Assertions.assertThat(cidadeAtualizada.getEstado().getUf()).isEqualTo("SP");
+        Assertions.assertThat(cidadeAtualizada.getEstado().getNome()).isEqualTo("São Paulo");
     }
 
     @Test
@@ -184,8 +187,8 @@ class CidadeServiceTest {
     @Test
     @DisplayName(value = "Dado um CidadeUpdateRequestDTO quando tentar converter para a entidade Cidade então deve retornar a entidade cidade")
     void DadoUmCidadeRequestUpdateDTOQuandoTentarConverterParaAEntidadeCidadeEntaoDeveRetornarAEntidadeCidade() {
-        EstadoUpdateRequestDTO estadoUpdateRequestDTO = new EstadoUpdateRequestDTO(1L, "Ceará", "CE");
-        CidadeUpdateRequestDTO cidadeUpdateRequestDTO = new CidadeUpdateRequestDTO(1L, "Jaguaribe", estadoUpdateRequestDTO);
+        EstadoRequestDTO estadoRequestDTO = new EstadoRequestDTO("Ceará", "CE");
+        CidadeRequestDTO cidadeUpdateRequestDTO = new CidadeRequestDTO("Jaguaribe", estadoRequestDTO);
 
         when(modelMapper.map(cidadeUpdateRequestDTO, Cidade.class)).thenReturn(cidadeCadastrada);
 
